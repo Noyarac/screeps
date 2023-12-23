@@ -10,7 +10,7 @@ const spawn_ai = {
             this.spawnCreep([TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, MOVE, RANGED_ATTACK, RANGED_ATTACK, RANGED_ATTACK, RANGED_ATTACK, RANGED_ATTACK], Game.time, {memory: {type: "fighter"}})
     },
     estimate_max_creep: function () {
-        return this.room.find(FIND_SOURCES_ACTIVE).reduce((results, source) => {
+        return Math.ceil(this.room.find(FIND_SOURCES_ACTIVE).reduce((results, source) => {
             for (let x of [-1, 0, 1]) {
                 for (let y of [-1, 0, 1]) {
                     results += (source.room.lookAt(source.pos.x + x, source.pos.y + y).reduce((walkable, obstacle) => {
@@ -19,7 +19,7 @@ const spawn_ai = {
                 }
             }
             return results    
-        }, 0);
+        }, 0)*1.5);
     },
     _count_creeps: function(type) {
         const ROOM_NAME = this.room.name;
