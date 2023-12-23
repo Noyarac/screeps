@@ -1,13 +1,26 @@
 const spawn_ai = {
     react_to_tick: function() {
         if (this.memory.targeted_max_creep === undefined)
-            this.memory.targeted_max_creep = this.estimate_max_creep()
-        if (this.room.energyAvailable >= 500 && this._count_creeps("worker") <= this.memory.targeted_max_creep)
-            this.spawnCreep([CARRY, CARRY, MOVE, MOVE, MOVE, WORK, WORK, WORK], Game.time, {memory: {type: "worker"}})
-        if (this.room.energyAvailable >= 300 && this._count_creeps("worker") <= this.memory.targeted_max_creep)
-            this.spawnCreep([CARRY, CARRY, MOVE, MOVE, WORK], Game.time, {memory: {type: "worker"}})
+            this.memory.targeted_max_creep = this.estimate_max_creep();
+        let max_creep = this.memory.targeted_max_creep;
+        if (this.room.energyAvailable >= 500 && this._count_creeps("worker") < max_creep)
+            this.spawnCreep([
+                ...new Array(3).fill(WORK), 
+                ...new Array(2).fill(CARRY), 
+                ...new Array(3).fill(MOVE)
+            ], Game.time, {memory: {type: "worker"}})
+        if (this.room.energyAvailable >= 300 && this._count_creeps("worker") < max_creep)
+            this.spawnCreep([
+                ...new Array(1).fill(WORK), 
+                ...new Array(2).fill(CARRY), 
+                ...new Array(2).fill(MOVE)
+], Game.time, {memory: {type: "worker"}})
         if (this.room.energyAvailable >= 900 && this._count_creeps("fighter") <= 3)
-            this.spawnCreep([TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, TOUGH, MOVE, RANGED_ATTACK, RANGED_ATTACK, RANGED_ATTACK, RANGED_ATTACK, RANGED_ATTACK], Game.time, {memory: {type: "fighter"}})
+            this.spawnCreep([
+                ...new Array(10).fill(TOUGH),
+                ...new Array(5).fill(RANGED_ATTACK), 
+                ...new Array(1).fill(MOVE)
+            ], Game.time, {memory: {type: "fighter"}})
     },
     estimate_max_creep: function () {
         return Math.ceil(this.room.find(FIND_SOURCES_ACTIVE).reduce((results, source) => {
