@@ -1,3 +1,4 @@
+/* Glouglou */
 const creep_ai = require("./creep_ai");
 const spawn_ai = require("./spawn_ai");
 var mission_center = require("./mission_center");
