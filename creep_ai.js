@@ -59,6 +59,9 @@ const creep_ai = {
         const sub_mission = Game.getObjectById(this.memory.sub_mission)
         if (sub_mission) {
             switch (true) {
+                case sub_mission instanceof StructureRoad:
+                    if (sub_mission.hits === sub_mission.hitsMax || this.store.getFreeCapacity() === 0) this._finish_sub_mission();
+                    break;
                 case sub_mission instanceof Source:
                     if (sub_mission.energy === 0 || this.store.getFreeCapacity() === 0) this._finish_sub_mission()
                     break;

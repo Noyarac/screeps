@@ -14,7 +14,7 @@ const mission_center = {
     },
     _repair_needs: function() {
         for (const room of Object.values(Game.rooms)) {
-            for (const road of room.find(FIND_STRUCTURES).filter(structure => structure.structureType === STRUCTURE_ROAD && structure.hits < structure.hitsMax)) {
+            for (const road of room.find(FIND_STRUCTURES).filter(structure => {return structure.structureType === STRUCTURE_ROAD && structure.hits < structure.hitsMax})) {
                 const uid = `repair ${road.id}`;
                 const mission = new Mission(uid, 1, "worker", [road.id, 0]);
                 if (Memory.missions.filter(mission => mission.uid === uid && mission.creep === undefined).length === 0) {
