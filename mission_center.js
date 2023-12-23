@@ -11,6 +11,15 @@ const mission_center = {
         this._construction_needs();
         Memory.missions = Memory.missions.sort((a, b) => b.priority - a.priority);
     },
+    _repair_needs: function() {
+        for (const road of Object.values(Game.structures).filter(structure => structure.structureType === STRUCTURE_ROAD)) {
+            const uid = `repair ${road.id}`;
+            const mission = new Mission(uid, 1, "worker", [road.id, 0]);
+            if (Memory.missions.filter(mission => mission.uid === uid && mission.creep === undefined).length === 0) {
+                Memory.missions.push(mission);
+            }
+        }
+    },
     _menace: function() {
         for (const spawn of Object.values(Game.spawns)) {
             let targets = spawn.room.find(FIND_HOSTILE_CREEPS);

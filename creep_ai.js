@@ -22,6 +22,9 @@ const creep_ai = {
         target = Game.getObjectById(target);
         let action = ()=>{};
         switch (true) {
+            case target instanceof StructureRoad:
+                action = creep => creep.repair(target);
+                break;
             case target instanceof Creep:
                 action = creep => creep.rangedAttack(target);
                 break;
