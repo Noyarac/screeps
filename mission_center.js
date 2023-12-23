@@ -12,7 +12,7 @@ const mission_center = {
         Memory.missions = Memory.missions.sort((a, b) => b.priority - a.priority);
     },
     _repair_needs: function() {
-        for (const road of Object.values(Game.structures).filter(structure => structure.structureType === STRUCTURE_ROAD)) {
+        for (const road of Object.values(Game.structures).filter(structure => structure.structureType === STRUCTURE_ROAD && structure.hits < structure.hitsMax)) {
             const uid = `repair ${road.id}`;
             const mission = new Mission(uid, 1, "worker", [road.id, 0]);
             if (Memory.missions.filter(mission => mission.uid === uid && mission.creep === undefined).length === 0) {
