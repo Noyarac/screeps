@@ -5,7 +5,13 @@ const spawn_ai = {
         }
         const max_creep = this.memory.targeted_max_creep;
         const count_workers = this._count_creeps("worker");
-        if (this.room.energyAvailable >= 500 && count_workers < max_creep)
+        if (this.room.energyAvailable >= 800 && count_workers < max_creep)
+            this.spawnCreep([
+                ...new Array(4).fill(WORK), 
+                ...new Array(4).fill(CARRY), 
+                ...new Array(4).fill(MOVE)
+            ], Game.time, {memory: {type: "worker"}})
+        if (this.room.energyAvailable >= 550 && count_workers < max_creep)
             this.spawnCreep([
                 ...new Array(3).fill(WORK), 
                 ...new Array(2).fill(CARRY), 

@@ -39,6 +39,9 @@ const creep_ai = {
     },
     _check_finish_sub_mission: function() {
         const target = Game.getObjectById(this.memory.sub_mission[0])
+        if (target === null) {
+            return true;
+        }
         if (
             (this.store.getUsedCapacity(RESOURCE_ENERGY) === 0 && (this.memory.sub_mission[1] === 'build' || this.memory.sub_mission[1] === 'repair' || this.memory.sub_mission[1] === 'transfer')) ||
             (this.memory.sub_mission[1] === 'harvest' && (target.energy === 0 || this.store.getFreeCapacity() === 0)) ||
