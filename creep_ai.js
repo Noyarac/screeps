@@ -88,7 +88,7 @@ const creep_ai = {
     _finish_sub_mission: function() {
         this.memory.sub_mission = undefined;
         if (this.memory.mission.target === undefined) {
-            Memory.missions = Memory.missions.filter(item => !(item.creep === this.name));
+            Memory.missions = Memory.missions.filter(item => !(item.creep === this.name, this));
             this.memory.mission = undefined
         }
     },
