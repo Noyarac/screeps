@@ -1,9 +1,13 @@
 const Mission = require("./Mission");
 
 /**
- * @type {{update_list: function(): void, _spawn_needs: function(): void}}
+ * @type {{update_list: function(): void, clear_all_mission: function(): void}}
  */
 const mission_center = {
+    clear_all_mission: function() {
+        Object.values(Game.creeps).forEach(creep => {creep.memory.mission = undefined; creep.memory.sub_mission = undefined});
+        Memory.missions = undefined;
+    },
     update_list: function () {
         this._menace();
         this._spawn_needs();
@@ -16,7 +20,7 @@ const mission_center = {
         for (const room of Object.values(Game.rooms)) {
             for (const road of room.find(FIND_STRUCTURES).filter(structure => {return structure.structureType === STRUCTURE_ROAD && structure.hits < structure.hitsMax})) {
                 const name = `repair ${road.id}`;
-                const mission = new Mission(name, 1, "worker", road.id, true);
+                const mission = new Mission(name, 1, "worker", [road.id, 'repair'], true);
                 if (Memory.missions.filter(mission => mission.name === name && mission.creep === undefined).length === 0) {
                     Memory.missions.push(mission);
                 }
@@ -29,14 +33,14 @@ const mission_center = {
             for (const target of targets) {
                 const name = `fight ${target.id}`;
                 if (Memory.missions.filter(mission => mission.name === name && mission.creep === undefined).length === 0) {
-                    Memory.missions.push(new Mission(name, 4, "fighter", target.id))
+                    Memory.missions.push(new Mission(name, 4, "fighter", [target.id, 'rangedAttack']))
                 }
             }
             targets = spawn.room.find(FIND_HOSTILE_STRUCTURES);
             for (const target of targets) {
                 const name = `fight ${target.id}`;
                 if (Memory.missions.filter(mission => mission.name === name && mission.creep === undefined).length === 0) {
-                    Memory.missions.push(new Mission(name, 3, "fighter", target.id))
+                    Memory.missions.push(new Mission(name, 3, "fighter", [target.id, 'rangedAttack']))
                 }
             }
         }
@@ -44,8 +48,8 @@ const mission_center = {
     _construction_needs: function() {
         for (const construction_site of Object.values(Game.constructionSites)) {
             const name = `build ${construction_site.id}`;
-            const mission = new Mission(name, 1, "worker", construction_site.id, true);
-            if (Memory.missions.filter(mission => mission.name === name && mission.creep === undefined).length === 0) {
+            const mission = new Mission(name, 1, "worker", [construction_site.id, 'build'], true);
+            if (Memory.missions.filter(mission => {return mission.name === name && mission.creep === undefined}).length === 0) {
                 Memory.missions.push(mission);
             }
         }
@@ -54,8 +58,8 @@ const mission_center = {
         for (const spawn of Object.values(Game.spawns)) {
             const controllers = spawn.room.find(FIND_MY_STRUCTURES, {filter: {structureType: STRUCTURE_CONTROLLER}});
             for (const controller of controllers) {
-                if (Memory.missions.filter(mission => mission.name === controller.id && mission.creep === undefined).length === 0) {
-                    Memory.missions.push(new Mission(`Controller ${controller.id}`, 0, "worker", controller.id, true));
+                if (Memory.missions.filter(mission => mission.name === `Controller ${controller.id}` && mission.creep === undefined).length === 0) {
+                    Memory.missions.push(new Mission(`Controller ${controller.id}`, 0, "worker", [controller.id, 'transfer', RESOURCE_ENERGY], true));
                 }
             }
         }
@@ -66,14 +70,14 @@ const mission_center = {
         , this)
         for (const spawn of spawns) {
             let name = `${spawn.name}`;
-            let mission = new Mission(name, 2, "worker", spawn.id, true);
+            let mission = new Mission(name, 2, "worker", [spawn.id, 'transfer', RESOURCE_ENERGY], true);
             if (Memory.missions.filter(mission => mission.name === name && mission.creep === undefined).length === 0)
                 Memory.missions.push(mission)
         }
     },
     _still_in_need: function(target){
         let energy_in_progress = 0;
-        const missions_in_progress = Memory.missions.filter(mission => mission.target === target.id && mission.creep != undefined);
+        const missions_in_progress = Memory.missions.filter(mission => ((mission.target === undefined) ? null : mission.target[0]) === target.id && mission.creep != undefined);
         for (const mission of missions_in_progress) {
             if (Game.creeps[mission.creep])
                 energy_in_progress += Game.creeps[mission.creep].body.reduce((total, bodyObj) => {total += (bodyObj.type === CARRY) ? 50 : 0; return total}, 0)

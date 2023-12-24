@@ -1,13 +1,18 @@
 const creep_ai = {
     react_to_tick: function() {
-        this._check_finish_sub_mission()
+        if (this.memory.sub_mission != undefined) {
+            if (this._check_finish_sub_mission()) {
+                this._finish_sub_mission();
+            }
+        }
         if (this.memory.sub_mission === undefined) {
-            if (this.memory.mission === undefined)
-                this._get_mission()
+            if (this.memory.mission === undefined) {
+                this._get_mission();
+            }
             if (this.memory.mission != undefined) {
                 if (this.memory.mission.need_energy && this.store.getUsedCapacity(RESOURCE_ENERGY) === 0) {
-                    this.memory.sub_mission = this._find_source_spot();
-                    if (this.memory.sub_mission !== null) {
+                    this.memory.sub_mission = [this._find_source_spot(), 'harvest', RESOURCE_ENERGY];
+                    if (this.memory.sub_mission[0] !== null) {
                         this.memory.mission.need_energy = false;
                     }
                 } else {
@@ -18,40 +23,14 @@ const creep_ai = {
             }
         }
         if (this.memory.sub_mission != undefined)
-            this._auto_action(this.memory.sub_mission)
+            this._auto_action()
     },
-    _auto_action: function(target) {
-        target = Game.getObjectById(target);
-        let action = ()=>{};
-        switch (true) {
-            case target instanceof StructureRoad:
-                action = creep => creep.repair(target);
-                break;
-            case target instanceof Creep:
-                action = creep => creep.rangedAttack(target);
-                break;
-            case target instanceof Source:
-                action = creep => creep.harvest(target);
-                break;
-            case target instanceof StructureSpawn:
-            case target instanceof StructureExtension:
-            case target instanceof StructureController:
-                action = creep => creep.transfer(target, RESOURCE_ENERGY);
-                break;
-            case target instanceof ConstructionSite:
-                action = creep => creep.build(target);
-                break;
-            case target === null:
-                this._finish_sub_mission();
-                break;
-            default:
-                console.log(`${this.name} ne sait pas quoi faire avec ${target}`)
-        }
-        if (action(this) === ERR_NOT_IN_RANGE)
+    _auto_action: function() {
+        const target = Game.getObjectById(this.memory.sub_mission[0]);
+        if (this[this.memory.sub_mission[1]](target, this.memory.sub_mission[2]) === ERR_NOT_IN_RANGE)
             this.moveTo(target, {reusePath: 5, visualizePathStyle: {stroke: "#00ff00"}})
     },
     _get_mission: function() {
-        const MY_TYPE = this.memory.type;
         for (let mission of Memory.missions.filter(m => m.creep === undefined && m.type === this.memory.type, this)) {
             mission.creep = this.name;
             this.memory.mission = mission;
@@ -59,36 +38,23 @@ const creep_ai = {
         }
     },
     _check_finish_sub_mission: function() {
-        const sub_mission = Game.getObjectById(this.memory.sub_mission)
-        if (sub_mission) {
-            switch (true) {
-                case sub_mission instanceof StructureRoad:
-                    if (sub_mission.hits === sub_mission.hitsMax || this.store.getFreeCapacity() === 0) this._finish_sub_mission();
-                    break;
-                case sub_mission instanceof Source:
-                    if (sub_mission.energy === 0 || this.store.getFreeCapacity() === 0) this._finish_sub_mission()
-                    break;
-                case sub_mission instanceof StructureExtension:
-                case sub_mission instanceof StructureSpawn:
-                    if (this.store.getUsedCapacity() === 0 || sub_mission.store.getFreeCapacity(RESOURCE_ENERGY) === 0) this._finish_sub_mission()
-                    break;
-                case sub_mission instanceof StructureController:
-                    if (this.store.getUsedCapacity() === 0) this._finish_sub_mission()
-                    break;
-                case sub_mission instanceof ConstructionSite:
-                    if (!(Object.values(Game.constructionSites).includes(sub_mission)) || this.store.getUsedCapacity() === 0) this._finish_sub_mission()
-                    break;
-                case sub_mission === null:
-                    this._finish_sub_mission();
-                default:
-                    break;
-            }
+        const target = Game.getObjectById(this.memory.sub_mission[0])
+        if (
+            (this.store.getUsedCapacity(RESOURCE_ENERGY) === 0 && (this.memory.sub_mission[1] === 'build' || this.memory.sub_mission[1] === 'repair' || this.memory.sub_mission[1] === 'transfer')) ||
+            (this.memory.sub_mission[1] === 'harvest' && (target.energy === 0 || this.store.getFreeCapacity() === 0)) ||
+            (this.memory.sub_mission[1] === 'transfer' && (target.structureType !== STRUCTURE_CONTROLLER && target.store.getFreeCapacity(this.memory.sub_mission[2])) === 0) ||
+            (this.memory.sub_mission[1] === 'repair' && (target.hits === target.hitsMax)) ||
+            (this.memory.sub_mission[1] === 'build' && (!(Object.values(Game.constructionSites).includes(target)))) ||
+            (this.memory.sub_mission[1] === 'rangedAttack' && target === null)
+        ) {
+            return true;
         }
+        return false;
     },
     _finish_sub_mission: function() {
         this.memory.sub_mission = undefined;
         if (this.memory.mission.target === undefined) {
-            Memory.missions = Memory.missions.filter(item => !(item.creep === this.name, this));
+            Memory.missions = Memory.missions.filter(mission => !(mission.creep === this.name), this);
             this.memory.mission = undefined
         }
     },

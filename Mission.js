@@ -3,7 +3,7 @@ class Mission{
      * @param {string} name 
      * @param {number} priority
      * @param {string} type
-     * @param {(Source|Structure|Creep|ConstructionSite)} target 
+     * @param {Array.<(Source|Structure|Creep|ConstructionSite), string>} target 
      * @param {boolean} need_energy
      */
     constructor(name, priority, type, target, need_energy = false){

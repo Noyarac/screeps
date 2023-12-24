@@ -1,20 +1,22 @@
 const spawn_ai = {
     react_to_tick: function() {
-        if (this.memory.targeted_max_creep === undefined)
+        if (this.memory.targeted_max_creep === undefined) {
             this.memory.targeted_max_creep = this.estimate_max_creep();
-        let max_creep = this.memory.targeted_max_creep;
-        if (this.room.energyAvailable >= 500 && this._count_creeps("worker") < max_creep)
+        }
+        const max_creep = this.memory.targeted_max_creep;
+        const count_workers = this._count_creeps("worker");
+        if (this.room.energyAvailable >= 500 && count_workers < max_creep)
             this.spawnCreep([
                 ...new Array(3).fill(WORK), 
                 ...new Array(2).fill(CARRY), 
                 ...new Array(3).fill(MOVE)
             ], Game.time, {memory: {type: "worker"}})
-        if (this.room.energyAvailable >= 300 && this._count_creeps("worker") < max_creep)
+        if (this.room.energyAvailable >= 300 && count_workers < max_creep)
             this.spawnCreep([
                 ...new Array(1).fill(WORK), 
                 ...new Array(2).fill(CARRY), 
                 ...new Array(2).fill(MOVE)
-], Game.time, {memory: {type: "worker"}})
+            ], Game.time, {memory: {type: "worker"}})
         if (this.room.energyAvailable >= 900 && this._count_creeps("fighter") <= 3)
             this.spawnCreep([
                 ...new Array(10).fill(TOUGH),
