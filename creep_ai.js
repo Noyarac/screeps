@@ -4,21 +4,23 @@ const creep_ai = {
         if (this.memory.sub_mission === undefined) {
             if (this.memory.mission === undefined)
                 this._get_mission()
-            if (this.memory.mission != undefined)
-                this.memory.sub_mission = this.memory.mission.targets.pop()
+            if (this.memory.mission != undefined) {
+                if (this.memory.mission.need_energy && this.store.getUsedCapacity(RESOURCE_ENERGY) === 0) {
+                    this.memory.sub_mission = this._find_source_spot();
+                    if (this.memory.sub_mission !== null) {
+                        this.memory.mission.need_energy = false;
+                    }
+                } else {
+                    this.memory.sub_mission = this.memory.mission.target;
+                    this.memory.mission.target = undefined;
+                    this.memory.mission.need_energy = false;
+                }
+            }
         }
         if (this.memory.sub_mission != undefined)
             this._auto_action(this.memory.sub_mission)
     },
     _auto_action: function(target) {
-        if (target === 0) {
-            if (this.store.getUsedCapacity(RESOURCE_ENERGY)) {
-                target = this.memory.mission.targets.pop();
-            } else {
-                target = this._find_source_spot();
-            }
-            if (target != null) this.memory.sub_mission = target
-        }
         target = Game.getObjectById(target);
         let action = ()=>{};
         switch (true) {
@@ -41,6 +43,7 @@ const creep_ai = {
                 break;
             case target === null:
                 this._finish_sub_mission();
+                break;
             default:
                 console.log(`${this.name} ne sait pas quoi faire avec ${target}`)
         }
@@ -84,8 +87,8 @@ const creep_ai = {
     },
     _finish_sub_mission: function() {
         this.memory.sub_mission = undefined;
-        if (this.memory.mission.targets.length === 0) {
-            Memory.missions = Memory.missions.filter(item => !(item.uid === this.memory.mission.uid && item.creep === this.name));
+        if (this.memory.mission.target === undefined) {
+            Memory.missions = Memory.missions.filter(item => !(item.creep === this.name));
             this.memory.mission = undefined
         }
     },

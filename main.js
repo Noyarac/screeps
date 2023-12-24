@@ -1,4 +1,3 @@
-/* Glouglou */
 const creep_ai = require("./creep_ai");
 const spawn_ai = require("./spawn_ai");
 var mission_center = require("./mission_center");
@@ -20,7 +19,7 @@ module.exports.loop = function () {
     for (const spawn of Object.values(Game.spawns)) {
         spawn.react_to_tick();
     }
-    if (!(Game.time % 1500)) {
+    if (!(Game.time % 500)) {
         const keys = Object.keys(Memory.creeps);
         for (const creep of keys) {
             if (!(Game.creeps[creep])) delete Memory.creeps[creep];
