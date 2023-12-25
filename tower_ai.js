@@ -4,15 +4,15 @@ const tower_ai = {
         if (!Memory.towers[this.id]) {
             Memory.towers[this.id] = {id: this.id, mission: undefined};
         }
+        if (this._check_finish_mission()) {
+            this._finish_mission();
+        }
         if (Memory.towers[this.id].mission === undefined && this.store.getUsedCapacity(RESOURCE_ENERGY) >= 10) {
             this._get_mission();
         }
         if (Memory.towers[this.id].mission != undefined) {
             const target = Game.getObjectById(Memory.towers[this.id].mission.target[0]);
             this[Memory.towers[this.id].mission.target[1]](target, Memory.towers[this.id].mission.target[2])
-            if (this._check_finish_mission()) {
-                this._finish_mission();
-            }
         }
     },
     _get_mission: function() {
@@ -32,7 +32,7 @@ const tower_ai = {
             return true;
         }
         if (
-            (this.store.getUsedCapacity(RESOURCE_ENERGY) === 0 && (Memory.towers[this.id].mission.target[1] === 'rangedAttack' || Memory.towers[this.id].mission.target[1] === 'repair' || Memory.towers[this.id].mission.target === 'heal')) ||
+            (this.store.getUsedCapacity(RESOURCE_ENERGY) === 0) ||
             (Memory.towers[this.id].mission.target[1] === 'heal' && target.hits === target.hitsMax) ||
             (Memory.towers[this.id].mission.target[1] === 'repair' && target.hits === target.hitsMax) ||
             (Memory.towers[this.id].mission.target[1] === 'rangedAttack' && target === null)
@@ -42,7 +42,7 @@ const tower_ai = {
         return false;
     },
     _finish_mission: function() {
-        Memory.missions = Memory.missions.filter(mission => !(mission.creep === this.name), this);
+        Memory.missions = Memory.missions.filter(mission => !(mission.creep === this.id), this);
         Memory.towers[this.id].mission = undefined
     },
 
