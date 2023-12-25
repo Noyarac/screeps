@@ -43,9 +43,9 @@ const creep_ai = {
             return true;
         }
         if (
-            (this.store.getUsedCapacity(RESOURCE_ENERGY) === 0 && (this.memory.sub_mission[1] === 'build' || this.memory.sub_mission[1] === 'repair' || this.memory.sub_mission[1] === 'transfer')) ||
+            (this.store.getUsedCapacity(RESOURCE_ENERGY) === 0 && (this.memory.sub_mission[1] === 'build' || this.memory.sub_mission[1] === 'repair' || this.memory.sub_mission[1] === 'transfer' || this.memory.sub_mission[1] === 'upgradeController')) ||
             (this.memory.sub_mission[1] === 'harvest' && (target.energy === 0 || this.store.getFreeCapacity() === 0)) ||
-            (this.memory.sub_mission[1] === 'transfer' && (target.structureType !== STRUCTURE_CONTROLLER && target.store.getFreeCapacity(this.memory.sub_mission[2])) === 0) ||
+            (this.memory.sub_mission[1] === 'transfer' && target.store.getFreeCapacity(this.memory.sub_mission[2]) === 0) ||
             (this.memory.sub_mission[1] === 'repair' && (target.hits === target.hitsMax)) ||
             (this.memory.sub_mission[1] === 'build' && (!(Object.values(Game.constructionSites).includes(target)))) ||
             (this.memory.sub_mission[1] === 'rangedAttack' && target === null)

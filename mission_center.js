@@ -59,7 +59,7 @@ const mission_center = {
             const controllers = spawn.room.find(FIND_MY_STRUCTURES, {filter: {structureType: STRUCTURE_CONTROLLER}});
             for (const controller of controllers) {
                 if (Memory.missions.filter(mission => mission.name === `Controller ${controller.id}` && mission.creep === undefined).length === 0) {
-                    Memory.missions.push(new Mission(`Controller ${controller.id}`, 0, "worker", [controller.id, 'transfer', RESOURCE_ENERGY], true));
+                    Memory.missions.push(new Mission(`Controller ${controller.id}`, 0, "worker", [controller.id, 'upgradeController', RESOURCE_ENERGY], true));
                 }
             }
         }
