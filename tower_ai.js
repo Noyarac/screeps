@@ -27,17 +27,19 @@ const tower_ai = {
         }
     },
     _check_finish_mission: function() {
-        const target = Game.getObjectById(Memory.towers[this.id].mission.target[0])
-        if (target === null) {
-            return true;
-        }
-        if (
-            (this.store.getUsedCapacity(RESOURCE_ENERGY) === 0) ||
-            (Memory.towers[this.id].mission.target[1] === 'heal' && target.hits === target.hitsMax) ||
-            (Memory.towers[this.id].mission.target[1] === 'repair' && target.hits === target.hitsMax) ||
-            (Memory.towers[this.id].mission.target[1] === 'rangedAttack' && target === null)
-        ) {
-            return true;
+        if (Memory.towers[this.id].mission) {
+            const target = Game.getObjectById(Memory.towers[this.id].mission.target[0])
+            if (target === null) {
+                return true;
+            }
+            if (
+                (this.store.getUsedCapacity(RESOURCE_ENERGY) === 0) ||
+                (Memory.towers[this.id].mission.target[1] === 'heal' && target.hits === target.hitsMax) ||
+                (Memory.towers[this.id].mission.target[1] === 'repair' && target.hits === target.hitsMax) ||
+                (Memory.towers[this.id].mission.target[1] === 'rangedAttack' && target === null)
+            ) {
+                return true;
+            }
         }
         return false;
     },
