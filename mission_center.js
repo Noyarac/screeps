@@ -66,7 +66,7 @@ const mission_center = {
     },
     _spawn_needs: function () {
         const spawns = Object.values(Game.structures).filter(struct =>
-            (struct.structureType === STRUCTURE_SPAWN || struct.structureType === STRUCTURE_EXTENSION) && this._still_in_need(struct)
+            (struct.structureType === STRUCTURE_SPAWN || struct.structureType === STRUCTURE_EXTENSION || struct.structureType === STRUCTURE_TOWER) && this._still_in_need(struct)
         , this)
         for (const spawn of spawns) {
             let name = `${spawn.name}`;
