@@ -1,5 +1,4 @@
-const tower_ai = {
-    memory: Memory.towers[this.id],
+const tower_ai = [StructureTower, {
     react_to_tick: function() {
         if (!Memory.towers[this.id]) {
             Memory.towers[this.id] = {id: this.id, mission: undefined};
@@ -16,7 +15,7 @@ const tower_ai = {
         }
     },
     _get_mission: function() {
-        for (let mission of Memory.missions.filter(m => m.creep === undefined && (
+        for (let mission of Memory.rooms[this.room.name].missions.filter(m => m.creep === undefined && (
             m.target[1] === 'repair' ||
             m.target[1] === 'rangedAttack' ||
             m.target[1] === 'heal'
@@ -44,9 +43,8 @@ const tower_ai = {
         return false;
     },
     _finish_mission: function() {
-        Memory.missions = Memory.missions.filter(mission => !(mission.creep === this.id), this);
+        Memory.rooms[this.room.name].missions = Memory.rooms[this.room.name].missions.filter(mission => !(mission.creep === this.id), this);
         Memory.towers[this.id].mission = undefined
     },
-
-}
+}];
 module.exports = tower_ai;

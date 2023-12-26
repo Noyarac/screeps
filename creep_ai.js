@@ -1,4 +1,4 @@
-const creep_ai = {
+const creep_ai = [Creep, {
     react_to_tick: function() {
         if (this.memory.sub_mission != undefined) {
             if (this._check_finish_sub_mission()) {
@@ -10,7 +10,7 @@ const creep_ai = {
                 this._get_mission();
             }
             if (this.memory.mission != undefined) {
-                if (this.memory.mission.need_energy && this.store.getUsedCapacity(RESOURCE_ENERGY) === 0) {
+                if (['transfer', 'repair', 'build', 'upgradeController'].includes(this.memory.mission.target[1]) && this.store.getUsedCapacity(RESOURCE_ENERGY) === 0) {
                     this.memory.sub_mission = [this._find_source_spot(), 'harvest', RESOURCE_ENERGY];
                     if (this.memory.sub_mission[0] !== null) {
                         this.memory.mission.need_energy = false;
@@ -31,7 +31,7 @@ const creep_ai = {
             this.moveTo(target, {reusePath: 5, visualizePathStyle: {stroke: "#00ff00"}})
     },
     _get_mission: function() {
-        for (let mission of Memory.missions.filter(m => m.creep === undefined && m.type === this.memory.type, this)) {
+        for (let mission of Memory.rooms[this.room.name].missions.filter(m => m.creep === undefined && m.type === this.memory.type, this)) {
             mission.creep = this.name;
             this.memory.mission = mission;
             break;
@@ -57,7 +57,7 @@ const creep_ai = {
     _finish_sub_mission: function() {
         this.memory.sub_mission = undefined;
         if (this.memory.mission.target === undefined) {
-            Memory.missions = Memory.missions.filter(mission => !(mission.creep === this.name), this);
+            Memory.rooms[this.room.name].missions = Memory.rooms[this.room.name].missions.filter(mission => !(mission.creep === this.name), this);
             this.memory.mission = undefined
         }
     },
@@ -77,6 +77,5 @@ const creep_ai = {
         }});
         return (closest != null) ? closest.id : null 
     }
-
-};
+}];
 module.exports = creep_ai;

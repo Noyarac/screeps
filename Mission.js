@@ -4,14 +4,12 @@ class Mission{
      * @param {number} priority
      * @param {string} type
      * @param {Array.<(Source|Structure|Creep|ConstructionSite), string>} target 
-     * @param {boolean} need_energy
      */
-    constructor(name, priority, type, target, need_energy = false){
+    constructor(name, priority, type, target, ){
         this.name = name;
         this.priority = priority;
         this.type = type;
         this.target = target;
-        this.need_energy = need_energy;
        /** @type {string} */
         this.creep = undefined;
     }

@@ -1,4 +1,4 @@
-const spawn_ai = {
+const spawn_ai = [StructureSpawn, {
     react_to_tick: function() {
         if (this.memory.targeted_max_creep === undefined) {
             this.memory.targeted_max_creep = this.estimate_max_creep();
@@ -47,6 +47,6 @@ const spawn_ai = {
         const spwng = (this.spawning === null) ? 0 : 1;
         return Object.values(Game.creeps).filter(creep => creep.room.name === ROOM_NAME && creep.memory.type === type).length + spwng
     }
-};
+}];
 
 module.exports = spawn_ai;
