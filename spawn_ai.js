@@ -23,11 +23,11 @@ const spawn_ai = {
                 ...new Array(2).fill(CARRY), 
                 ...new Array(2).fill(MOVE)
             ], Game.time, {memory: {type: "worker"}})
-        if (this.room.energyAvailable >= 900 && this._count_creeps("fighter") <= 3)
+        if (this.room.energyAvailable >= 800 && this._count_creeps("fighter") < 1)
             this.spawnCreep([
-                ...new Array(10).fill(TOUGH),
-                ...new Array(5).fill(RANGED_ATTACK), 
-                ...new Array(1).fill(MOVE)
+                ...new Array(5).fill(TOUGH),
+                ...new Array(4).fill(RANGED_ATTACK), 
+                ...new Array(3).fill(MOVE)
             ], Game.time, {memory: {type: "fighter"}})
     },
     estimate_max_creep: function () {
