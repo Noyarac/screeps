@@ -59,11 +59,16 @@ const creep_ai = [Creep, {
         if (this.memory.mission.target === undefined) {
             Memory.rooms[this.room.name].missions = Memory.rooms[this.room.name].missions.filter(mission => !(mission.creep === this.name), this);
             this.memory.mission = undefined
+        } else {
+            this.memory.sub_mission = this.memory.mission.target.map(x=>x);
+            this.memory.mission.target = undefined;
         }
     },
     _find_source_spot: function () {
+        const depart = (this.memory.mission.target) ? Game.getObjectById(this.memory.mission.target[0]) : this;
+        const targets = (this.memory.mission.target && [STRUCTURE_CONTROLLER, STRUCTURE_CONTAINER].includes(depart.structureType)) ? depart.room.find(FIND_SOURCES_ACTIVE) : [...depart.room.find(FIND_MY_STRUCTURES).filter(struct => {return (struct.structureType === STRUCTURE_CONTAINER) && struct.store.getUsedCapacity(RESOURCE_ENERGY) > 49}), ...depart.room.find(FIND_SOURCES_ACTIVE)]
         const CREEP_ID = this.id;
-        const closest = this.pos.findClosestByPath(FIND_SOURCES_ACTIVE, {filter: source => {
+        const closest = depart.pos.findClosestByPath(targets, {filter: source => {
             if (source.pos.findInRange(FIND_HOSTILE_CREEPS, 4).length > 0) {return false;}
             const AROUND = [-1, 0, 1];
             for (let x of AROUND) {

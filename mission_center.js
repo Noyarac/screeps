@@ -6,7 +6,7 @@ const mission_center = {
             [FIND_HOSTILE_CREEPS, "rangedAttack", 4, "fighter", null],
             [FIND_HOSTILE_STRUCTURES, "rangedAttack", 3, "fighter", null],
             [FIND_MY_STRUCTURES, "transfer", 2, "worker", struct =>
-            struct.structureType === STRUCTURE_SPAWN || struct.structureType === STRUCTURE_EXTENSION || struct.structureType === STRUCTURE_TOWER],
+            (struct.structureType === STRUCTURE_SPAWN || struct.structureType === STRUCTURE_EXTENSION || struct.structureType === STRUCTURE_TOWER || struct.structureType === STRUCTURE_CONTAINER) && struct.store.getFreeCapacity(RESOURCE_ENERGY)],
             [FIND_MY_CONSTRUCTION_SITES, "build", 1, "worker", null],
             [FIND_STRUCTURES, "upgradeController", 0, "worker", structure => structure.structureType === STRUCTURE_CONTROLLER]
         ]) {
