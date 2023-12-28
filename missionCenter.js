@@ -5,6 +5,8 @@ const missionCenter = {
         for (const [a, b, c, d, e] of [
             [FIND_HOSTILE_CREEPS, "rangedAttack", 4, "fighter", null],
             [FIND_HOSTILE_STRUCTURES, "rangedAttack", 3, "fighter", null],
+            [FIND_RUINS, "withdraw", 3, "worker", ruin => ruin.store.getUsedCapacity(RESOURCE_ENERGY) > 0],
+            [FIND_TOMBSTONES, "withdraw", 3, "worker", tomb => tomb.store.getUsedCapacity(RESOURCE_ENERGY) > 0],
             [FIND_MY_STRUCTURES, "transfer", 2, "worker", struct =>
             (struct.structureType === STRUCTURE_SPAWN || struct.structureType === STRUCTURE_EXTENSION || struct.structureType === STRUCTURE_TOWER) && struct.store.getFreeCapacity(RESOURCE_ENERGY)],
             [FIND_STRUCTURES, "transfer", 2, "worker", struct =>
@@ -37,7 +39,7 @@ const missionCenter = {
         .filter(mission => mission.name == missionName && mission.creep != null)
         .reduce((total, mission) => {
             if (Game.creeps[mission.creep]) {
-                return total + Game.creeps[mission.creep].store.getUsedCapacity(RESOURCE_ENERGY)
+                return total + Game.creeps[mission.creep].getActiveBodyparts(CARRY) * 50
             }
         }, 0);
         if (actionString == "transfer") {

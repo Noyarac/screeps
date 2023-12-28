@@ -14,6 +14,7 @@ for (const groupe of classesEnhancements) {
     }
 }
 module.exports.loop = function () {
+    54200798
     memoryManagement.clean();
     for (const roomName in Game.rooms) {
         missionCenter.updateList(roomName);

@@ -27,7 +27,7 @@ const creepAi = [Creep, {
     _autoAction: function() {
         const target = Game.getObjectById(this.memory.subMission[0]);
         if (this[this.memory.subMission[1]](target, this.memory.subMission[2]) === ERR_NOT_IN_RANGE)
-            this.moveTo(target, {reusePath: 5, visualizePathStyle: {stroke: "#00ff00"}})
+            this.moveTo(target, {reusePath: 3, visualizePathStyle: {stroke: "#00ff00"}})
     },
     _getMission: function() {
         for (let mission of Memory.rooms[this.room.name].missions.filter(m => m.creep === undefined && m.type === this.memory.type, this)) {
