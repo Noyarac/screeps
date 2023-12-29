@@ -1,6 +1,9 @@
 const creepAi = function() {
     let p = Creep.prototype;
     p.reactToTick = function() {
+        if (this.spawning) {
+            return;
+        }
         if (this.memory.subMission != undefined) {
             if (this._checkFinishSubMission()) {
                 this._finishSubMission();

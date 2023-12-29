@@ -44,8 +44,7 @@ const missionCenter = {
             case "transfer":
                 return target.store.getFreeCapacity(RESOURCE_ENERGY) - energyComingSoon > 0;
             case "build":
-                const constructionSite = target; 
-                return constructionSite.progressTotal - constructionSite.progress - energyComingSoon > 0;
+                return target.progressTotal - target.progress - energyComingSoon > 0;
             case "withdraw":
                 return target.store.getUsedCapacity(RESOURCE_ENERGY) - energyComingSoon > 0;
         }

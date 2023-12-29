@@ -10,7 +10,7 @@ module.exports.loop = function () {
     for (const roomName in Game.rooms) {
         missionCenter.updateList(roomName);
     }
-    for (const creep of _.filter(Game.creeps, creep => !creep.spawning)) {
+    for (const creep of Object.values(Game.creeps)) {
         creep.reactToTick();
     }
     for (const tower of _.filter(Game.structures, {structureType: STRUCTURE_TOWER})) {
@@ -19,5 +19,7 @@ module.exports.loop = function () {
     for (const spawn of Object.values(Game.spawns)) {
         spawn.reactToTick();
     }
-    if (Game.cpu.bucket === 10000) Game.cpu.generatePixel();
+    if (Game.cpu.bucket === 10000) {
+        Game.cpu.generatePixel();
+    }
 }
