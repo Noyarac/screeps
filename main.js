@@ -4,8 +4,8 @@ memoryManagement.clearAllMission();
 const Mission = require("./Mission");
 const missionCenter = require("./missionCenter");
 const classesEnhancements = [
-    require("./creepAi"), 
     require("./towerAi"), 
+    require("./creepAi"),
     require("./spawnAi")
 ];
 for (const groupe of classesEnhancements) {
@@ -14,7 +14,6 @@ for (const groupe of classesEnhancements) {
     }
 }
 module.exports.loop = function () {
-    54200798
     memoryManagement.clean();
     for (const roomName in Game.rooms) {
         missionCenter.updateList(roomName);
@@ -28,4 +27,5 @@ module.exports.loop = function () {
     for (const spawn of Object.values(Game.spawns)) {
         spawn.reactToTick();
     }
+    if (Game.cpu.bucket === 10000) Game.cpu.generatePixel();
 }
