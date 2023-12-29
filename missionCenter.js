@@ -3,8 +3,8 @@ const Mission = require("./Mission");
 const missionCenter = {
     updateList: function(roomName) {
         for (const [a, b, c, d, e] of [
-            [FIND_HOSTILE_CREEPS, "rangedAttack", 4, "fighter", null],
-            [FIND_HOSTILE_STRUCTURES, "rangedAttack", 3, "fighter", null],
+            [FIND_HOSTILE_CREEPS, "attack", 4, "fighter", null],
+            [FIND_HOSTILE_STRUCTURES, "attack", 3, "fighter", null],
             [FIND_RUINS, "withdraw", 3, "worker", ruin => ruin.store.getUsedCapacity(RESOURCE_ENERGY) > 0],
             [FIND_TOMBSTONES, "withdraw", 3, "worker", tomb => tomb.store.getUsedCapacity(RESOURCE_ENERGY) > 0],
             [FIND_MY_STRUCTURES, "transfer", 2, "worker", struct =>

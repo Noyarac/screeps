@@ -48,7 +48,7 @@ const creepAi = function() {
             (this.memory.subMission[1] === 'transfer' && target.store.getFreeCapacity(this.memory.subMission[2]) === 0) ||
             (this.memory.subMission[1] === 'repair' && (target.hits === target.hitsMax)) ||
             (this.memory.subMission[1] === 'build' && (!(Object.values(Game.constructionSites).includes(target)))) ||
-            (this.memory.subMission[1] === 'rangedAttack' && target === null) ||
+            (['rangedAttack', 'attack'].includes(this.memory.subMission[1]) && target === null) ||
             (this.memory.subMission[1] === 'withdraw' && (target.store.getUsedCapacity(RESOURCE_ENERGY) === 0 || this.store.getFreeCapacity() === 0))            
         ) {
             return true;
