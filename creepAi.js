@@ -11,6 +11,9 @@ const creepAi = function() {
                 this._getMission();
             }
             if (this.memory.mission != undefined) {
+                if (this.memory.mission.target[1] === 'attack' && this.getActiveBodyparts(ATTACK) === 0 && this.getActiveBodyparts(RANGED_ATTACK) > 0) {
+                    this.memory.mission.target[1] = 'rangedAttack';
+                }
                 if (['transfer', 'repair', 'build', 'upgradeController'].includes(this.memory.mission.target[1]) && this.store.getUsedCapacity(RESOURCE_ENERGY) === 0) {
                     let sourceSpot = this._findSourceSpot();
                     this.memory.subMission = [sourceSpot, (Game.getObjectById(sourceSpot) instanceof Source ) ? 'harvest' : "withdraw", RESOURCE_ENERGY];
