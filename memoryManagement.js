@@ -1,8 +1,10 @@
 const mem = {
     cleanFrequency: 500,
     initialize: function() {
-        if (!Memory.towers) {
-            Memory.towers = new Object;
+        for (const name of ["towers", "links"]) {
+            if (!Memory[name]) {
+                Memory[name] = new Object;
+            }
         }
         for (const roomName in Game.rooms) {
             if (Memory.rooms[roomName] == undefined) Memory.rooms[roomName] = new Object;
