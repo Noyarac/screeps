@@ -16,8 +16,8 @@ const creepAi = function() {
                 }
                 if (['transfer', 'repair', 'build', 'upgradeController'].includes(this.memory.mission.target[1]) && this.store.getUsedCapacity(RESOURCE_ENERGY) === 0) {
                     let sourceSpot = this._findSourceSpot();
-                    this.memory.subMission = [sourceSpot, (Game.getObjectById(sourceSpot) instanceof Source ) ? 'harvest' : "withdraw", RESOURCE_ENERGY];
-                    if (this.memory.subMission[0] !== null) {
+                    if (sourceSpot) {
+                        this.memory.subMission = [sourceSpot, (Game.getObjectById(sourceSpot) instanceof Source ) ? 'harvest' : "withdraw", RESOURCE_ENERGY];
                     }
                 } else {
                     this.memory.subMission = this.memory.mission.target;
@@ -25,13 +25,13 @@ const creepAi = function() {
                 }
             }
         }
-        if (this.memory.subMission != undefined)
+        if (this.memory.subMission)
             this._autoAction()
     }
     p._autoAction = function() {
         const target = Game.getObjectById(this.memory.subMission[0]);
         if (this[this.memory.subMission[1]](target, this.memory.subMission[2]) === ERR_NOT_IN_RANGE)
-            this.moveTo(target, {reusePath: 3, visualizePathStyle: {stroke: "#00ff00"}})
+            this.moveTo(target, {reusePath: 3})
     }
     p._getMission = function() {
         for (let mission of Memory.rooms[this.room.name].missions.filter(m => m.creep === undefined && m.type === this.memory.type, this)) {
@@ -46,7 +46,7 @@ const creepAi = function() {
             return true;
         }
         if (
-            (this.store.getUsedCapacity(RESOURCE_ENERGY) === 0 && (this.memory.subMission[1] === 'build' || this.memory.subMission[1] === 'repair' || this.memory.subMission[1] === 'transfer' || this.memory.subMission[1] === 'upgradeController')) ||
+            (this.store.getUsedCapacity(RESOURCE_ENERGY) === 0 && ['build', 'repair', 'transfer', 'upgradeController'].includes(this.memory.subMission[1])) ||
             (this.memory.subMission[1] === 'harvest' && (target.energy === 0 || this.store.getFreeCapacity() === 0)) ||
             (this.memory.subMission[1] === 'transfer' && target.store.getFreeCapacity(this.memory.subMission[2]) === 0) ||
             (this.memory.subMission[1] === 'repair' && (target.hits === target.hitsMax)) ||

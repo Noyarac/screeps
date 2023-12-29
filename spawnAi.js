@@ -42,7 +42,7 @@ const spawnAi = function() {
             for (let x of [-1, 0, 1]) {
                 for (let y of [-1, 0, 1]) {
                     results += (source.room.lookAt(source.pos.x + x, source.pos.y + y).reduce((walkable, obstacle) => {
-                        return walkable && !(OBSTACLE_OBJECT_TYPES.filter(obj => !(obj === "creep" || obj === "powerCreep")).includes(obstacle.type) || obstacle.terrain === "wall")
+                        return walkable && !(OBSTACLE_OBJECT_TYPES.filter(obj => !["creep", "powerCreep"].includes(obj)).includes(obstacle.type) || obstacle.terrain === "wall")
                     }, true)) ? 1 : 0
                 }
             }

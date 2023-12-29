@@ -11,7 +11,7 @@ const mem = {
             if (Memory.rooms[roomName].missions == undefined) Memory.rooms[roomName].missions = new Array;
         }
     },
-    clearAllMission: function() {
+    clearAllMissions: function() {
         Object.values(Game.creeps).forEach(creep => {creep.memory.mission = undefined; creep.memory.subMission = undefined});
         Object.keys(Memory.towers).forEach(towerId => {Memory.towers[towerId].mission = undefined;});
         for (const roomName in Game.rooms) {

@@ -33,8 +33,7 @@ const towerAi = function() {
             }
             if (
                 (this.store.getUsedCapacity(RESOURCE_ENERGY) === 0) ||
-                (Memory.towers[this.id].mission.target[1] === 'heal' && target.hits === target.hitsMax) ||
-                (Memory.towers[this.id].mission.target[1] === 'repair' && target.hits === target.hitsMax) ||
+                (['heal', 'repair'].includes(Memory.towers[this.id].mission.target[1]) && target.hits === target.hitsMax) ||
                 (Memory.towers[this.id].mission.target[1] === 'attack' && target == null)
             ) {
                 return true;
