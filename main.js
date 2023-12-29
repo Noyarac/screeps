@@ -1,6 +1,5 @@
 const memoryManagement = require("./memoryManagement");
 memoryManagement.initialize();
-memoryManagement.clearAllMission();
 const Mission = require("./Mission");
 const missionCenter = require("./missionCenter");
 const classesEnhancements = [
