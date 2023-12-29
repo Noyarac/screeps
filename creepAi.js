@@ -1,5 +1,6 @@
-const creepAi = [Creep, {
-    reactToTick: function() {
+const creepAi = function() {
+    let p = Creep.prototype;
+    p.reactToTick = function() {
         if (this.memory.subMission != undefined) {
             if (this._checkFinishSubMission()) {
                 this._finishSubMission();
@@ -23,20 +24,20 @@ const creepAi = [Creep, {
         }
         if (this.memory.subMission != undefined)
             this._autoAction()
-    },
-    _autoAction: function() {
+    }
+    p._autoAction = function() {
         const target = Game.getObjectById(this.memory.subMission[0]);
         if (this[this.memory.subMission[1]](target, this.memory.subMission[2]) === ERR_NOT_IN_RANGE)
             this.moveTo(target, {reusePath: 3, visualizePathStyle: {stroke: "#00ff00"}})
-    },
-    _getMission: function() {
+    }
+    p._getMission = function() {
         for (let mission of Memory.rooms[this.room.name].missions.filter(m => m.creep === undefined && m.type === this.memory.type, this)) {
             mission.creep = this.name;
             this.memory.mission = mission;
             break;
         }
-    },
-    _checkFinishSubMission: function() {
+    }
+    p._checkFinishSubMission = function() {
         const target = Game.getObjectById(this.memory.subMission[0])
         if (target === null) {
             return true;
@@ -53,8 +54,8 @@ const creepAi = [Creep, {
             return true;
         }
         return false;
-    },
-    _finishSubMission: function() {
+    }
+    p._finishSubMission = function() {
         this.memory.subMission = undefined;
         if (this.memory.mission != undefined) {
             if (this.memory.mission.target === undefined) {
@@ -65,8 +66,8 @@ const creepAi = [Creep, {
                 this.memory.mission.target = undefined;
             }
         }
-    },
-    _findSourceSpot: function () {
+    }
+    p._findSourceSpot = function () {
         const depart = (this.memory.mission.target) ? Game.getObjectById(this.memory.mission.target[0]) : this;
         const targets = (this.memory.mission.target && [STRUCTURE_CONTROLLER, STRUCTURE_CONTAINER].includes(depart.structureType)) ? depart.room.find(FIND_SOURCES_ACTIVE) : [...depart.room.find(FIND_STRUCTURES).filter(struct => {return (struct.structureType === STRUCTURE_CONTAINER) && struct.store.getUsedCapacity(RESOURCE_ENERGY) > 49}), ...depart.room.find(FIND_SOURCES_ACTIVE)]
         const creepId = this.id;
@@ -84,5 +85,5 @@ const creepAi = [Creep, {
         }});
         return (closest != null) ? closest.id : null 
     }
-}];
+};
 module.exports = creepAi;

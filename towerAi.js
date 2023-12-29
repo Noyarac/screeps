@@ -1,5 +1,6 @@
-const towerAi = [StructureTower, {
-    reactToTick: function() {
+const towerAi = function() {
+    let p = StructureTower.prototype;
+    p.reactToTick = function() {
         if (!Memory.towers[this.id]) {
             Memory.towers[this.id] = {id: this.id, mission: undefined};
         }
@@ -13,8 +14,8 @@ const towerAi = [StructureTower, {
             const target = Game.getObjectById(Memory.towers[this.id].mission.target[0]);
             this[Memory.towers[this.id].mission.target[1]](target, Memory.towers[this.id].mission.target[2])
         }
-    },
-    _getMission: function() {
+    }
+    p._getMission = function() {
         for (let mission of Memory.rooms[this.room.name].missions.filter(m => m.creep === undefined && (
             m.target[1] === 'repair' ||
             m.target[1] === 'rangedAttack' ||
@@ -24,8 +25,8 @@ const towerAi = [StructureTower, {
             Memory.towers[this.id].mission = mission;
             break;
         }
-    },
-    _checkFinishMission: function() {
+    }
+    p._checkFinishMission = function() {
         if (Memory.towers[this.id].mission) {
             const target = Game.getObjectById(Memory.towers[this.id].mission.target[0])
             if (target === null) {
@@ -41,10 +42,10 @@ const towerAi = [StructureTower, {
             }
         }
         return false;
-    },
-    _finishMission: function() {
+    }
+    p._finishMission = function() {
         Memory.rooms[this.room.name].missions = Memory.rooms[this.room.name].missions.filter(mission => !(mission.creep === this.id), this);
         Memory.towers[this.id].mission = undefined
-    },
-}];
+    }
+};
 module.exports = towerAi;

@@ -1,5 +1,6 @@
-const spawnAi = [StructureSpawn, {
-    reactToTick: function() {
+const spawnAi = function() {
+    let p = StructureSpawn.prototype;
+    p.reactToTick = function() {
         if (this.memory.targetedMaxCreep === undefined) {
             this.memory.targetedMaxCreep = this.estimateMaxCreep();
         }
@@ -35,8 +36,8 @@ const spawnAi = [StructureSpawn, {
                 ...new Array(4).fill(RANGED_ATTACK), 
                 ...new Array(3).fill(MOVE)
             ], Game.time, {memory: {type: "fighter"}})
-    },
-    estimateMaxCreep: function () {
+    }
+    p.estimateMaxCreep = function () {
         return Math.ceil(this.room.find(FIND_SOURCES_ACTIVE).reduce((results, source) => {
             for (let x of [-1, 0, 1]) {
                 for (let y of [-1, 0, 1]) {
@@ -47,12 +48,12 @@ const spawnAi = [StructureSpawn, {
             }
             return results    
         }, 0)*1.5);
-    },
-    _countCreeps: function(type) {
+    }
+    p._countCreeps = function(type) {
         const ROOM_NAME = this.room.name;
         const spwng = (this.spawning === null) ? 0 : 1;
         return Object.values(Game.creeps).filter(creep => creep.room.name === ROOM_NAME && creep.memory.type === type).length + spwng
     }
-}];
+};
 
 module.exports = spawnAi;

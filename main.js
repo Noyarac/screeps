@@ -2,16 +2,9 @@ const memoryManagement = require("./memoryManagement");
 memoryManagement.initialize();
 const Mission = require("./Mission");
 const missionCenter = require("./missionCenter");
-const classesEnhancements = [
-    require("./towerAi"), 
-    require("./creepAi"),
-    require("./spawnAi")
-];
-for (const groupe of classesEnhancements) {
-    for (const [key, value] of Object.entries(groupe[1])) {
-        groupe[0].prototype[key] = value;
-    }
-}
+require("./towerAi")(); 
+require("./creepAi")();
+require("./spawnAi")();
 module.exports.loop = function () {
     memoryManagement.clean();
     for (const roomName in Game.rooms) {
