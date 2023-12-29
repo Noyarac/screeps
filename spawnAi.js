@@ -33,8 +33,8 @@ const spawnAi = function() {
         if (this.room.energyAvailable >= 780 && this._countCreeps("fighter") < 2)
             this.spawnCreep([
                 ...new Array(5).fill(TOUGH),
-                ...new Array(6).fill(ATTACK), 
-                ...new Array(5).fill(MOVE)
+                ...new Array(5).fill(MOVE),
+                ...new Array(6).fill(ATTACK) 
             ], Game.time, {memory: {type: "fighter"}})
     }
     p.estimateMaxCreep = function () {
