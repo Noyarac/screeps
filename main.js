@@ -1,3 +1,4 @@
+/* test */
 const memoryManagement = require("./memoryManagement");
 memoryManagement.initialize();
 const Mission = require("./Mission");
