@@ -5,9 +5,10 @@ const missionCenter = {
         for (const [a, b, c, d, e] of [
             [FIND_HOSTILE_CREEPS, "attack", 4, "fighter", null],
             [FIND_HOSTILE_STRUCTURES, "attack", 3, "fighter", null],
-            [FIND_RUINS, "withdraw", 3, "worker", ruin => ruin.store.getUsedCapacity(RESOURCE_ENERGY) > 0],
-            [FIND_TOMBSTONES, "withdraw", 3, "worker", tomb => tomb.store.getUsedCapacity(RESOURCE_ENERGY) > 0],
-            [FIND_MY_STRUCTURES, "transfer", 2, "worker", struct => [STRUCTURE_SPAWN, STRUCTURE_EXTENSION, STRUCTURE_TOWER].includes(struct.structureType) && struct.store.getFreeCapacity(RESOURCE_ENERGY)],
+            [FIND_RUINS, "withdraw", 3, "worker", ruin => !(ruin.store.getFreeCapacity() === 0)],
+            [FIND_TOMBSTONES, "withdraw", 3, "worker", tomb => tomb.store.getUsedCapacity() > 0],
+            [FIND_MY_STRUCTURES, "transfer", 3, "worker", struct => struct.structureType === STRUCTURE_SPAWN && struct.store.getFreeCapacity(RESOURCE_ENERGY)],
+            [FIND_MY_STRUCTURES, "transfer", 2, "worker", struct => [STRUCTURE_EXTENSION, STRUCTURE_TOWER].includes(struct.structureType) && struct.store.getFreeCapacity(RESOURCE_ENERGY)],
             [FIND_STRUCTURES, "transfer", 2, "worker", struct => struct.structureType === STRUCTURE_CONTAINER && struct.store.getFreeCapacity(RESOURCE_ENERGY)],
             [FIND_MY_CONSTRUCTION_SITES, "build", 1, "worker", null],
             [FIND_STRUCTURES, "repair", 1, "worker", struct => ([STRUCTURE_ROAD, STRUCTURE_CONTAINER].includes(struct.structureType)) && (struct.hitsMax - struct.hits > 0)],

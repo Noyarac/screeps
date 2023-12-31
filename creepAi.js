@@ -1,3 +1,4 @@
+const Mission = require("./Mission");
 const creepAi = function() {
     let p = Creep.prototype;
     p.reactToTick = function() {
@@ -11,7 +12,11 @@ const creepAi = function() {
         }
         if (this.memory.subMission === undefined) {
             if (this.memory.mission === undefined) {
-                this._getMission();
+                if (this.store.getCapacity() !== null && (this.store.getUsedCapacity(RESOURCE_ENERGY) + this.store.getFreeCapacity() != this.store.getCapacity())) {
+                    this.memory.mission = new Mission("unload", 5, "anyCreep", [this.room.find(FIND_STRUCTURES, {structureType: STRUCTURE_STORAGE})[0].id, "transfer", null])
+                } else {
+                    this._getMission();
+                }
             }
             if (this.memory.mission != undefined) {
                 if (this.memory.mission.target[1] === 'attack' && this.getActiveBodyparts(ATTACK) === 0 && this.getActiveBodyparts(RANGED_ATTACK) > 0) {
@@ -33,11 +38,27 @@ const creepAi = function() {
     }
     p._autoAction = function() {
         const target = Game.getObjectById(this.memory.subMission[0]);
+        if (this.memory.subMission[1] === "withdraw") {
+            for (const resourceType of RESOURCES_ALL) {
+                if (target.store.getUsedCapacity(resourceType)) {
+                    this.memory.subMission[2] = resourceType;
+                    break;
+                }
+            }
+        }
+        if (this.memory.subMission[1] === "transfer" && target.structureType === STRUCTURE_STORAGE) {
+            for (const resourceType of RESOURCES_ALL) {
+                if (this.store.getUsedCapacity(resourceType)) {
+                    this.memory.subMission[2] = resourceType;
+                    break;
+                }
+            }
+        }
         if (this[this.memory.subMission[1]](target, this.memory.subMission[2]) === ERR_NOT_IN_RANGE)
             this.moveTo(target, {reusePath: 3})
     }
     p._getMission = function() {
-        for (let mission of Memory.rooms[this.room.name].missions.filter(m => m.creep === undefined && m.type === this.memory.type, this)) {
+        for (let mission of Memory.rooms[this.room.name].missions.filter(m => m.creep === undefined && m.type === this.memory.type && !(this.store.getFreeCapacity() < 50 && ["withdraw", "harvest"].includes(m.target[1])), this)) {
             mission.creep = this.name;
             this.memory.mission = mission;
             break;
@@ -49,19 +70,21 @@ const creepAi = function() {
             return true;
         }
         if (
-            (this.store.getUsedCapacity(RESOURCE_ENERGY) === 0 && ['build', 'repair', 'transfer', 'upgradeController'].includes(this.memory.subMission[1])) ||
+            (this.store.getUsedCapacity(this.memory.subMission[2]) === 0 && ['build', 'repair', 'transfer', 'upgradeController'].includes(this.memory.subMission[1])) ||
             (this.memory.subMission[1] === 'harvest' && (target.energy === 0 || this.store.getFreeCapacity() === 0)) ||
             (this.memory.subMission[1] === 'transfer' && target.store.getFreeCapacity(this.memory.subMission[2]) === 0) ||
             (this.memory.subMission[1] === 'repair' && (target.hits === target.hitsMax)) ||
             (this.memory.subMission[1] === 'build' && (!(Object.values(Game.constructionSites).includes(target)))) ||
             (['rangedAttack', 'attack'].includes(this.memory.subMission[1]) && target === null) ||
-            (this.memory.subMission[1] === 'withdraw' && (target.store.getUsedCapacity(RESOURCE_ENERGY) === 0 || this.store.getFreeCapacity() === 0))            
+            (this.memory.subMission[1] === 'withdraw' && (target.store.getUsedCapacity(this.memory.subMission[2]) === 0 || this.store.getFreeCapacity() === 0)) ||
+            (this.memory.subMission[1] === 'moveTo' && this.pos.isNearTo(target))
         ) {
             return true;
         }
         return false;
     }
     p._finishSubMission = function() {
+        const target = Game.getObjectById(this.memory.subMission[0]); 
         this.memory.subMission = undefined;
         if (this.memory.mission != undefined) {
             if (this.memory.mission.target === undefined) {
