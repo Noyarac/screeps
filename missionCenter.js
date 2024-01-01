@@ -6,7 +6,7 @@ const missionCenter = {
             [FIND_HOSTILE_CREEPS, "attack", 4, "fighter", null],
             [FIND_HOSTILE_STRUCTURES, "attack", 3, "fighter", null],
             [FIND_RUINS, "withdraw", 3, "worker", ruin => !(ruin.store.getFreeCapacity() === 0)],
-            [FIND_TOMBSTONES, "withdraw", 3, "worker", tomb => tomb.store.getUsedCapacity() > 0],
+            [FIND_TOMBSTONES, "withdraw", 3, "worker", tomb => tomb.store.getUsedCapacity()],
             [FIND_MY_STRUCTURES, "transfer", 3, "worker", struct => struct.structureType === STRUCTURE_SPAWN && struct.store.getFreeCapacity(RESOURCE_ENERGY)],
             [FIND_MY_STRUCTURES, "transfer", 2, "worker", struct => [STRUCTURE_EXTENSION, STRUCTURE_TOWER].includes(struct.structureType) && struct.store.getFreeCapacity(RESOURCE_ENERGY)],
             [FIND_STRUCTURES, "transfer", 2, "worker", struct => struct.structureType === STRUCTURE_CONTAINER && struct.store.getFreeCapacity(RESOURCE_ENERGY)],
