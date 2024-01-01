@@ -7,6 +7,7 @@ require("./creepAi")();
 require("./spawnAi")();
 module.exports.loop = function () {
     memoryManagement.clean();
+    // memoryManagement.clearAllMissions();
     for (const roomName in Game.rooms) {
         missionCenter.updateList(roomName);
     }

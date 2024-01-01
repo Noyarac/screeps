@@ -1,8 +1,17 @@
 const Mission = require("./Mission");
 const creepAi = function() {
     let p = Creep.prototype;
+    Object.defineProperty(p, "hasChangedRoom", {
+        get: function() {
+            this.oldRoomName = (Memory.creeps[this.name].oldRoom == undefined) ? this.room.name : Memory.creeps[this.name].oldRoom;
+            Memory.creeps[this.name].oldRoom = this.room.name;
+            return this.room.name != this.oldRoomName;
+        },
+        enumerable: false,
+        configurable: true,
+    });
     p.reactToTick = function() {
-        if (this.spawning) {
+        if (this.spawning) { 
             return;
         }
         if (this.memory.subMission != undefined) {
@@ -22,7 +31,7 @@ const creepAi = function() {
                 if (this.memory.mission.target[1] === 'attack' && this.getActiveBodyparts(ATTACK) === 0 && this.getActiveBodyparts(RANGED_ATTACK) > 0) {
                     this.memory.mission.target[1] = 'rangedAttack';
                 }
-                if (['transfer', 'repair', 'build', 'upgradeController'].includes(this.memory.mission.target[1]) && this.store.getUsedCapacity(RESOURCE_ENERGY) === 0) {
+                if (['transfer', 'repair', 'build', 'upgradeController'].includes(this.memory.mission.target[1]) && this.store.getUsedCapacity(RESOURCE_ENERGY) === 0 && this.memory.mission.name !== "unload") {
                     let sourceSpot = this._findSourceSpot();
                     if (sourceSpot) {
                         this.memory.subMission = [sourceSpot, (Game.getObjectById(sourceSpot) instanceof Source ) ? 'harvest' : "withdraw", RESOURCE_ENERGY];
@@ -37,25 +46,35 @@ const creepAi = function() {
             this._autoAction()
     }
     p._autoAction = function() {
-        const target = Game.getObjectById(this.memory.subMission[0]);
-        if (this.memory.subMission[1] === "withdraw" && target instanceof Tombstone) {
-            for (const resourceType of RESOURCES_ALL) {
-                if (target.store.getUsedCapacity(resourceType) > 0) {
-                    this.memory.subMission[2] = resourceType;
-                    break;
+        try {
+            let target = this.memory.subMission[0];
+            if (target instanceof Array) {
+                this.moveTo(target[0], target[1], {reusePath: 3});
+                return;
+            }
+            target = Game.getObjectById(this.memory.subMission[0]);
+            if (this.memory.subMission[1] === "withdraw" && target instanceof Tombstone) {
+                for (const resourceType of RESOURCES_ALL) {
+                    if (target.store.getUsedCapacity(resourceType) > 0) {
+                        this.memory.subMission[2] = resourceType;
+                        break;
+                    }
                 }
             }
-        }
-        if (this.memory.subMission[1] === "transfer" && target.structureType === STRUCTURE_STORAGE) {
-            for (const resourceType of RESOURCES_ALL) {
-                if (this.store.getUsedCapacity(resourceType)) {
-                    this.memory.subMission[2] = resourceType;
-                    break;
+            if (this.memory.subMission[1] === "transfer" && target.structureType === STRUCTURE_STORAGE) {
+                for (const resourceType of RESOURCES_ALL) {
+                    if (this.store.getUsedCapacity(resourceType)) {
+                        this.memory.subMission[2] = resourceType;
+                        break;
+                    }
                 }
             }
+            if (this[this.memory.subMission[1]](target, this.memory.subMission[2]) === ERR_NOT_IN_RANGE) {
+                this.moveTo(target, {reusePath: 3})
+            }
         }
-        if (this[this.memory.subMission[1]](target, this.memory.subMission[2]) === ERR_NOT_IN_RANGE) {
-            this.moveTo(target, {reusePath: 3})
+        catch(err) {
+            console.log("Error creepAi " + err)
         }
     }
     p._getMission = function() {
@@ -66,14 +85,20 @@ const creepAi = function() {
         }
     }
     p._checkFinishSubMission = function() {
-        const target = Game.getObjectById(this.memory.subMission[0])
+        let target = this.memory.subMission[0];
+        if (target instanceof Array) {
+            return (this.pos.x == target[0] && this.pos.y == target[1]) || this.hasChangedRoom;
+        }
+
+        target = Game.getObjectById(this.memory.subMission[0])
         if (target === null) {
             return true;
         }
         if (
-            (this.store.getUsedCapacity(this.memory.subMission[2]) === 0 && !(target instanceof Tombstone) && ['build', 'repair', 'transfer', 'upgradeController'].includes(this.memory.subMission[1])) ||
+            (this.store.getUsedCapacity(this.memory.subMission[2]) === 0 && !(target instanceof Tombstone || target instanceof StructureContainer) && ['build', 'repair', 'transfer', 'upgradeController'].includes(this.memory.subMission[1])) ||
             (this.memory.subMission[1] === 'harvest' && (target.energy === 0 || this.store.getFreeCapacity() === 0)) ||
-            (this.memory.subMission[1] === 'transfer' && target.store.getFreeCapacity(this.memory.subMission[2]) === 0) ||
+            (this.memory.subMission[1] === 'transfer' && (target instanceof StructureContainer) && (target.store.getFreeCapacity() === 0 || this.store.getUsedCapacity() === 0)) ||
+            (this.memory.subMission[1] === 'transfer' && !(target instanceof StructureContainer) && target.store.getFreeCapacity(this.memory.subMission[2]) === 0) ||
             (this.memory.subMission[1] === 'repair' && (target.hits === target.hitsMax)) ||
             (this.memory.subMission[1] === 'build' && (!(Object.values(Game.constructionSites).includes(target)))) ||
             (['rangedAttack', 'attack'].includes(this.memory.subMission[1]) && target === null) ||
@@ -86,7 +111,6 @@ const creepAi = function() {
         return false;
     }
     p._finishSubMission = function() {
-        const target = Game.getObjectById(this.memory.subMission[0]); 
         this.memory.subMission = undefined;
         if (this.memory.mission != undefined) {
             if (this.memory.mission.target === undefined) {
