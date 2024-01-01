@@ -5,6 +5,7 @@ const missionCenter = {
         try {
             for (const [a, b, c, d, e] of [
                 [FIND_HOSTILE_CREEPS, "attack", 4, "fighter", null],
+                [FIND_STRUCTURES, "reserveController", 4, "conqueror", structure => structure.structureType === STRUCTURE_CONTROLLER && structure.owner == undefined],
                 [FIND_MY_CREEPS, "heal", 4, "tower", creep => creep.hitsMax - creep.hits > 0, null],
                 [FIND_HOSTILE_STRUCTURES, "attack", 3, "fighter", null],
                 [FIND_RUINS, "withdraw", 3, "worker", ruin => !(ruin.store.getFreeCapacity() === 0)],

@@ -96,6 +96,7 @@ const creepAi = function() {
         }
         if (
             (this.store.getUsedCapacity(this.memory.subMission[2]) === 0 && !(target instanceof Tombstone || target instanceof StructureContainer) && ['build', 'repair', 'transfer', 'upgradeController'].includes(this.memory.subMission[1])) ||
+            (this.memory.subMission[1] === 'reserveController' && (target.owner != undefined)) ||
             (this.memory.subMission[1] === 'harvest' && (target.energy === 0 || this.store.getFreeCapacity() === 0)) ||
             (this.memory.subMission[1] === 'transfer' && (target instanceof StructureContainer) && (target.store.getFreeCapacity() === 0 || this.store.getUsedCapacity() === 0)) ||
             (this.memory.subMission[1] === 'transfer' && !(target instanceof StructureContainer) && target.store.getFreeCapacity(this.memory.subMission[2]) === 0) ||
