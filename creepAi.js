@@ -125,7 +125,7 @@ const creepAi = function() {
     }
     p._findSourceSpot = function () {
         const depart = (this.memory.mission.target) ? Game.getObjectById(this.memory.mission.target[0]) : this;
-        const targets = (this.memory.mission.target && depart.structureType === STRUCTURE_CONTROLLER) ?
+        const targets = (this.memory.mission.target && [STRUCTURE_CONTROLLER, STRUCTURE_CONTAINER].includes(depart.structureType)) ?
             [...depart.room.find(FIND_MY_STRUCTURES).filter(struct => struct.structureType === STRUCTURE_LINK && struct.memory.type === "receiver" && struct.store.getUsedCapacity(RESOURCE_ENERGY) > 49), ...depart.room.find(FIND_SOURCES_ACTIVE)] :
             [...depart.room.find(FIND_STRUCTURES).filter(struct => [STRUCTURE_CONTAINER, STRUCTURE_STORAGE].includes(struct.structureType) && struct.store.getUsedCapacity(RESOURCE_ENERGY) > 49), ...depart.room.find(FIND_SOURCES_ACTIVE)];
         const creepId = this.id;
