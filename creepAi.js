@@ -19,7 +19,7 @@ const creepAi = function() {
                 this._finishSubMission();
             }
         }
-        if (this.memory.subMission === undefined) {
+        if (!this.memory.subMission) {
             if (this.memory.mission === undefined) {
                 if (this.store.getCapacity() !== null && (this.store.getUsedCapacity(RESOURCE_ENERGY) + this.store.getFreeCapacity() != this.store.getCapacity())) {
                     this.memory.mission = new Mission("unload", 5, "anyCreep", [this.room.find(FIND_MY_STRUCTURES, {filter: {structureType: STRUCTURE_STORAGE}})[0].id, "transfer", null])
@@ -49,7 +49,7 @@ const creepAi = function() {
         try {
             let target = this.memory.subMission[0];
             if (target instanceof Array) {
-                this.moveTo(target[0], target[1], {reusePath: 3});
+                this.moveTo(target[0], target[1], {reusePath: 7});
                 return;
             }
             target = Game.getObjectById(this.memory.subMission[0]);
@@ -70,7 +70,7 @@ const creepAi = function() {
                 }
             }
             if (this[this.memory.subMission[1]](target, this.memory.subMission[2]) === ERR_NOT_IN_RANGE) {
-                this.moveTo(target, {reusePath: 3})
+                this.moveTo(target, {reusePath: 7})
             }
         }
         catch(err) {
@@ -98,6 +98,7 @@ const creepAi = function() {
             (this.store.getUsedCapacity(this.memory.subMission[2]) === 0 && !(target instanceof Tombstone || target instanceof StructureContainer) && ['build', 'repair', 'transfer', 'upgradeController'].includes(this.memory.subMission[1])) ||
             (this.memory.subMission[1] === 'reserveController' && (target.owner != undefined)) ||
             (this.memory.subMission[1] === 'harvest' && (target.energy === 0 || this.store.getFreeCapacity() === 0)) ||
+            (this.memory.subMission[1] === 'pickup' && (target.amount === 0 || this.store.getFreeCapacity() === 0)) ||
             (this.memory.subMission[1] === 'transfer' && (target instanceof StructureContainer) && (target.store.getFreeCapacity() === 0 || this.store.getUsedCapacity() === 0)) ||
             (this.memory.subMission[1] === 'transfer' && !(target instanceof StructureContainer) && target.store.getFreeCapacity(this.memory.subMission[2]) === 0) ||
             (this.memory.subMission[1] === 'repair' && (target.hits === target.hitsMax)) ||
@@ -124,24 +125,32 @@ const creepAi = function() {
         }
     }
     p._findSourceSpot = function () {
-        const depart = (this.memory.mission.target) ? Game.getObjectById(this.memory.mission.target[0]) : this;
-        const targets = (this.memory.mission.target && [STRUCTURE_CONTROLLER, STRUCTURE_CONTAINER].includes(depart.structureType)) ?
-            [...depart.room.find(FIND_MY_STRUCTURES).filter(struct => struct.structureType === STRUCTURE_LINK && struct.memory.type === "receiver" && struct.store.getUsedCapacity(RESOURCE_ENERGY) > 49), ...depart.room.find(FIND_SOURCES_ACTIVE)] :
-            [...depart.room.find(FIND_STRUCTURES).filter(struct => [STRUCTURE_CONTAINER, STRUCTURE_STORAGE].includes(struct.structureType) && struct.store.getUsedCapacity(RESOURCE_ENERGY) > 49), ...depart.room.find(FIND_SOURCES_ACTIVE)];
-        const creepId = this.id;
-        const closest = depart.pos.findClosestByPath(targets, {filter: source => {
-            if (source.pos.findInRange(FIND_HOSTILE_CREEPS, 4).length > 0) {return false;}
-            const AROUND = [-1, 0, 1];
-            for (let x of AROUND) {
-                for (let y of AROUND) {
-                    if (source.room.lookAt(source.pos.x + x, source.pos.y + y).reduce((walkable, obstactle) => {return walkable && !((OBSTACLE_OBJECT_TYPES.includes(obstactle.type) && !((obstactle.type === "creep")?obstactle.creep.id === creepId:false)) || obstactle.terrain === "wall")}, true)) {
-                        return true
+        try {
+            const depart = (this.memory.mission.target) ? Game.getObjectById(this.memory.mission.target[0]) : this;
+            if (depart == null) {
+                return null;
+            }
+            const targets = (this.memory.mission.target && [STRUCTURE_CONTROLLER, STRUCTURE_CONTAINER].includes(depart.structureType)) ?
+                [...depart.room.find(FIND_MY_STRUCTURES).filter(struct => struct.structureType === STRUCTURE_LINK && struct.memory.type === "receiver" && struct.store.getUsedCapacity(RESOURCE_ENERGY) > 49), ...depart.room.find(FIND_SOURCES_ACTIVE)] :
+                [...depart.room.find(FIND_STRUCTURES).filter(struct => [STRUCTURE_CONTAINER, STRUCTURE_STORAGE].includes(struct.structureType) && struct.store.getUsedCapacity(RESOURCE_ENERGY) > 49), ...depart.room.find(FIND_SOURCES_ACTIVE)];
+            const creepId = this.id;
+            const closest = depart.pos.findClosestByPath(targets, {filter: source => {
+                if (source.pos.findInRange(FIND_HOSTILE_CREEPS, 4).length > 0) {return false;}
+                const AROUND = [-1, 0, 1];
+                for (let x of AROUND) {
+                    for (let y of AROUND) {
+                        if (source.room.lookAt(source.pos.x + x, source.pos.y + y).reduce((walkable, obstactle) => {return walkable && !((OBSTACLE_OBJECT_TYPES.includes(obstactle.type) && !((obstactle.type === "creep")?obstactle.creep.id === creepId:false)) || obstactle.terrain === "wall")}, true)) {
+                            return true
+                        }
                     }
                 }
-            }
-            return false;
-        }});
-        return (closest != null) ? closest.id : null 
+                return false;
+            }});
+            return (closest != null) ? closest.id : null 
+        }
+        catch(err) {
+            console.log("Find source spot " + err);
+        }
     }
 };
 module.exports = creepAi;

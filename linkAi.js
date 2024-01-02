@@ -17,7 +17,10 @@ const linkAi = function() {
                     const target = Object.values(Memory.links).filter(lnk => lnk.type === "receiver").map(o => o.id);
                     this.memory.sendTo = target[0];
                 }
-                this.transferEnergy(Game.getObjectById(this.memory.sendTo));
+                const receiver = Game.getObjectById(this.memory.sendTo);
+                if (receiver.store.getFreeCapacity(RESOURCE_ENERGY)/receiver.store.getCapacity(RESOURCE_ENERGY) > 0.05) {
+                    this.transferEnergy(Game.getObjectById(this.memory.sendTo));
+                }
             }
         }
         catch(err) {
