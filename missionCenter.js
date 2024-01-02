@@ -4,16 +4,17 @@ const missionCenter = {
     updateList: function(roomName) {
         try {
             for (const [a, b, c, d, e] of [
-                [FIND_HOSTILE_CREEPS, "attack", 4, "fighter", null],
                 [FIND_STRUCTURES, "reserveController", 4, "conqueror", structure => structure.structureType === STRUCTURE_CONTROLLER && structure.owner == undefined],
+                [FIND_HOSTILE_CREEPS, "attack", 4, "fighter", null],
                 [FIND_MY_CREEPS, "heal", 4, "tower", creep => creep.hitsMax - creep.hits > 0, null],
-                [FIND_HOSTILE_STRUCTURES, "attack", 3, "fighter", null],
+                [FIND_HOSTILE_STRUCTURES, "attack", 3, "fighter", struct => struct.structureType != STRUCTURE_KEEPER_LAIR],
                 [FIND_RUINS, "withdraw", 3, "worker", ruin => !(ruin.store.getFreeCapacity() === 0)],
                 [FIND_TOMBSTONES, "withdraw", 3, "worker", tomb => tomb.store.getUsedCapacity()],
                 [FIND_MY_STRUCTURES, "transfer", 3, "worker", struct => struct.structureType === STRUCTURE_SPAWN && struct.store.getFreeCapacity(RESOURCE_ENERGY)],
                 [FIND_MY_STRUCTURES, "transfer", 2, "worker", struct => [STRUCTURE_EXTENSION, STRUCTURE_TOWER].includes(struct.structureType) && struct.store.getFreeCapacity(RESOURCE_ENERGY)],
                 [FIND_STRUCTURES, "transfer", 2, "worker", struct => struct.structureType === STRUCTURE_CONTAINER && struct.store.getFreeCapacity(RESOURCE_ENERGY)],
                 [FIND_MY_CONSTRUCTION_SITES, "build", 1, "worker", null],
+                [FIND_MY_STRUCTURES, "transfer", 1, "linkOp", struct => struct.structureType === STRUCTURE_LINK && struct.memory.type === "sender" && struct.store.getFreeCapacity(RESOURCE_ENERGY) > 50],
                 [FIND_STRUCTURES, "repair", 1, "worker", struct => ([STRUCTURE_ROAD, STRUCTURE_CONTAINER].includes(struct.structureType)) && (struct.hitsMax - struct.hits > 0)],
                 [FIND_MY_STRUCTURES, "repair", 1, "worker", struct => struct.hitsMax - struct.hits > 0],
                 [FIND_STRUCTURES, "upgradeController", 0, "worker", structure => structure.structureType === STRUCTURE_CONTROLLER]

@@ -23,8 +23,10 @@ const mem = {
             for (const creepName in Memory.creeps) {
                 if (Game.creeps[creepName] == undefined) delete Memory.creeps[creepName];
             }
-            for (const towerId in Memory.towers) {
-                if (Game.getObjectById(towerId) == null) delete Memory.towers[towerId];
+            for (const type of ["towers", "links"]) {
+                for (const structureId in Memory[type]) {
+                    if (Game.getObjectById(structureId) == null) delete Memory[type][structureId];
+                }
             }
             for (const roomName in Game.rooms) {
                 const creepNameList = Object.keys(Game.creeps);

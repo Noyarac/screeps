@@ -6,6 +6,12 @@ const spawnAi = function() {
         }
         const maxCreep = this.memory.targetedMaxCreep;
         const countWorkers = this._countCreeps("worker");
+        if (this.room.energyAvailable >= 1200 && this._countCreeps("linkOp") < 1)
+            this.spawnCreep([
+                ...new Array(8).fill(WORK), 
+                ...new Array(1).fill(CARRY), 
+                ...new Array(4).fill(MOVE)
+            ], Game.time, {memory: {type: "linkOp"}})
         if (this.room.energyAvailable >= 1200 && countWorkers < maxCreep)
             this.spawnCreep([
                 ...new Array(6).fill(WORK), 
