@@ -1,15 +1,6 @@
 const Mission = require("./Mission");
 const creepAi = function() {
     let p = Creep.prototype;
-    Object.defineProperty(p, "hasChangedRoom", {
-        get: function() {
-            this.oldRoomName = (Memory.creeps[this.name].oldRoom == undefined) ? this.room.name : Memory.creeps[this.name].oldRoom;
-            Memory.creeps[this.name].oldRoom = this.room.name;
-            return this.room.name != this.oldRoomName;
-        },
-        enumerable: false,
-        configurable: true,
-    });
     p.reactToTick = function() {
         if (this.spawning) { 
             return;
@@ -28,17 +19,19 @@ const creepAi = function() {
                 }
             }
             if (this.memory.mission != undefined) {
-                if (this.memory.mission.target[1] === 'attack' && this.getActiveBodyparts(ATTACK) === 0 && this.getActiveBodyparts(RANGED_ATTACK) > 0) {
-                    this.memory.mission.target[1] = 'rangedAttack';
-                }
-                if (['transfer', 'repair', 'build', 'upgradeController'].includes(this.memory.mission.target[1]) && this.store.getUsedCapacity(RESOURCE_ENERGY) === 0 && this.memory.mission.name !== "unload") {
-                    let sourceSpot = this._findSourceSpot();
-                    if (sourceSpot) {
-                        this.memory.subMission = [sourceSpot, (Game.getObjectById(sourceSpot) instanceof Source ) ? 'harvest' : "withdraw", RESOURCE_ENERGY];
+                if (this.memory.mission.target) {
+                    if (this.memory.mission.target[1] === 'attack' && this.getActiveBodyparts(ATTACK) === 0 && this.getActiveBodyparts(RANGED_ATTACK) > 0) {
+                        this.memory.mission.target[1] = 'rangedAttack';
                     }
-                } else {
-                    this.memory.subMission = this.memory.mission.target;
-                    this.memory.mission.target = undefined;
+                    if (['transfer', 'repair', 'build', 'upgradeController'].includes(this.memory.mission.target[1]) && this.store.getUsedCapacity(RESOURCE_ENERGY) === 0 && this.memory.mission.name !== "unload") {
+                        let sourceSpot = this._findSourceSpot();
+                        if (sourceSpot) {
+                            this.memory.subMission = [sourceSpot, (Game.getObjectById(sourceSpot) instanceof Source ) ? 'harvest' : "withdraw", RESOURCE_ENERGY];
+                        }
+                    } else {
+                        this.memory.subMission = this.memory.mission.target;
+                        this.memory.mission.target = undefined;
+                    }
                 }
             }
         }
@@ -47,13 +40,9 @@ const creepAi = function() {
     }
     p._autoAction = function() {
         try {
-            let target = this.memory.subMission[0];
-            if (target instanceof Array) {
-                this.moveTo(target[0], target[1], {reusePath: 7});
-                return;
-            }
-            target = Game.getObjectById(this.memory.subMission[0]);
-            if (this.memory.subMission[1] === "withdraw" && target instanceof Tombstone) {
+            const actionString = this.memory.subMission[1];
+            const target = (this.memory.subMission[0] instanceof Array) ? new RoomPosition(...this.memory.subMission[0]) : Game.getObjectById(this.memory.subMission[0]);  
+            if (actionString === "withdraw" && target instanceof Tombstone) {
                 for (const resourceType of RESOURCES_ALL) {
                     if (target.store.getUsedCapacity(resourceType) > 0) {
                         this.memory.subMission[2] = resourceType;
@@ -61,7 +50,7 @@ const creepAi = function() {
                     }
                 }
             }
-            if (this.memory.subMission[1] === "transfer" && target.structureType === STRUCTURE_STORAGE) {
+            if (actionString === "transfer" && target.structureType === STRUCTURE_STORAGE) {
                 for (const resourceType of RESOURCES_ALL) {
                     if (this.store.getUsedCapacity(resourceType)) {
                         this.memory.subMission[2] = resourceType;
@@ -69,7 +58,7 @@ const creepAi = function() {
                     }
                 }
             }
-            if (this[this.memory.subMission[1]](target, this.memory.subMission[2]) === ERR_NOT_IN_RANGE) {
+            if (this[actionString](target, (target instanceof RoomPosition) ? undefined : this.memory.subMission[2]) === ERR_NOT_IN_RANGE) {
                 this.moveTo(target, {reusePath: 7})
             }
         }
@@ -85,28 +74,24 @@ const creepAi = function() {
         }
     }
     p._checkFinishSubMission = function() {
-        let target = this.memory.subMission[0];
-        if (target instanceof Array) {
-            return (this.pos.x == target[0] && this.pos.y == target[1]) || this.hasChangedRoom;
-        }
-
-        target = Game.getObjectById(this.memory.subMission[0])
+        const actionString = this.memory.subMission[1]; 
+        const target = (this.memory.subMission[0] instanceof Array) ? new RoomPosition(...this.memory.subMission[0]) : Game.getObjectById(this.memory.subMission[0]);  
         if (target === null) {
             return true;
         }
         if (
-            (this.store.getUsedCapacity(this.memory.subMission[2]) === 0 && !(target instanceof Tombstone || target instanceof StructureContainer) && ['build', 'repair', 'transfer', 'upgradeController'].includes(this.memory.subMission[1])) ||
-            (this.memory.subMission[1] === 'reserveController' && (target.owner != undefined)) ||
-            (this.memory.subMission[1] === 'harvest' && (target.energy === 0 || this.store.getFreeCapacity() === 0)) ||
-            (this.memory.subMission[1] === 'pickup' && (target.amount === 0 || this.store.getFreeCapacity() === 0)) ||
-            (this.memory.subMission[1] === 'transfer' && (target instanceof StructureContainer) && (target.store.getFreeCapacity() === 0 || this.store.getUsedCapacity() === 0)) ||
-            (this.memory.subMission[1] === 'transfer' && !(target instanceof StructureContainer) && target.store.getFreeCapacity(this.memory.subMission[2]) === 0) ||
-            (this.memory.subMission[1] === 'repair' && (target.hits === target.hitsMax)) ||
-            (this.memory.subMission[1] === 'build' && (!(Object.values(Game.constructionSites).includes(target)))) ||
-            (['rangedAttack', 'attack'].includes(this.memory.subMission[1]) && target === null) ||
-            (this.memory.subMission[1] === 'withdraw' && (target instanceof Tombstone) && (target.store.getUsedCapacity() === 0 || this.store.getFreeCapacity() === 0)) ||
-            (this.memory.subMission[1] === 'withdraw' && !(target instanceof Tombstone) && (target.store.getUsedCapacity(this.memory.subMission[2]) === 0 || this.store.getFreeCapacity() === 0)) ||
-            (this.memory.subMission[1] === 'moveTo' && this.pos.isNearTo(target))
+            (this.store.getUsedCapacity(this.memory.subMission[2]) === 0 && !(target instanceof Tombstone || target instanceof StructureContainer) && ['build', 'repair', 'transfer', 'upgradeController'].includes(actionString)) ||
+            (actionString === 'moveTo' && this.pos.isNearTo(target)) ||
+            (actionString === 'reserveController' && (target.owner != undefined)) ||
+            (actionString === 'harvest' && (target.energy === 0 || this.store.getFreeCapacity() === 0)) ||
+            (actionString === 'pickup' && (target.amount === 0 || this.store.getFreeCapacity() === 0)) ||
+            (actionString === 'transfer' && (target instanceof StructureContainer) && (target.store.getFreeCapacity() === 0 || this.store.getUsedCapacity() === 0)) ||
+            (actionString === 'transfer' && !(target instanceof StructureContainer) && target.store.getFreeCapacity(this.memory.subMission[2]) === 0) ||
+            (actionString === 'repair' && (target.hits === target.hitsMax)) ||
+            (actionString === 'build' && (!(Object.values(Game.constructionSites).includes(target)))) ||
+            (['rangedAttack', 'attack'].includes(actionString) && target === null) ||
+            (actionString === 'withdraw' && (target instanceof Tombstone) && (target.store.getUsedCapacity() === 0 || this.store.getFreeCapacity() === 0)) ||
+            (actionString === 'withdraw' && !(target instanceof Tombstone) && (target.store.getUsedCapacity(this.memory.subMission[2]) === 0 || this.store.getFreeCapacity() === 0))
         ) {
             return true;
         }

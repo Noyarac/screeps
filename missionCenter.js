@@ -18,7 +18,7 @@ const missionCenter = {
                 [FIND_MY_STRUCTURES, "transfer", 1, "linkOp", struct => struct.structureType === STRUCTURE_LINK && struct.memory.type === "sender" && struct.store.getFreeCapacity(RESOURCE_ENERGY) > 50],
                 [FIND_STRUCTURES, "repair", 1, "worker", struct => ([STRUCTURE_ROAD, STRUCTURE_CONTAINER].includes(struct.structureType)) && (struct.hitsMax - struct.hits > 0)],
                 [FIND_MY_STRUCTURES, "repair", 1, "worker", struct => struct.hitsMax - struct.hits > 0],
-                [FIND_STRUCTURES, "upgradeController", 0, "worker", structure => structure.structureType === STRUCTURE_CONTROLLER]
+                [FIND_STRUCTURES, "upgradeController", 0, "worker", structure => structure.structureType === STRUCTURE_CONTROLLER && structure.my]
             ]) {
                 this._createMission(roomName, a, b, c, d, e);
             }
@@ -30,8 +30,8 @@ const missionCenter = {
     },
     _createMission: function(roomName, FIND_, actionString, priority, creepType, filterFunction = null, resource = RESOURCE_ENERGY) {
         let targets;
-        if (FIND_ instanceof Array) {
-            targets = [{id: FIND_}]
+        if (FIND_ instanceof RoomPosition) {
+            targets = [{id: [FIND_.x, FIND_.y, FIND_.roomName]}]
         } else {
             targets = Game.rooms[roomName].find(FIND_);
             if (filterFunction) targets = targets.filter(filterFunction, this)
