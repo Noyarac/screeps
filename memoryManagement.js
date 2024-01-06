@@ -7,8 +7,11 @@ const mem = {
             }
         }
         for (const roomName in Game.rooms) {
-            if (Memory.rooms[roomName] == undefined) Memory.rooms[roomName] = new Object;
-            if (Memory.rooms[roomName].missions == undefined) Memory.rooms[roomName].missions = new Array;
+            Memory.rooms[roomName] ??= new Object;
+            Memory.rooms[roomName].missions ??= new Array;
+        }
+        for (const spawn of Object.values(Game.spawns)) {
+            spawn.memory.ttl ??= 0;
         }
     },
     clearAllMissions: function() {

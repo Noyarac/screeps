@@ -1,6 +1,7 @@
 const memoryManagement = require("./memoryManagement");
 memoryManagement.initialize();
 const Mission = require("./Mission");
+const SubMission = require("./SubMission");
 require("./linkAi")();
 require("./towerAi")(); 
 require("./creepAi")();
