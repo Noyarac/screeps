@@ -3,6 +3,10 @@ const Mission = require("./Mission");
 const missionCenter = {
     updateList: function(roomName) {
         try {
+            if (Memory.rooms[roomName] == undefined) {
+                Memory.rooms[roomName] = new Object;
+                Memory.rooms[roomName].missions = [];
+            }
             for (const [a, b, c, d, e] of [
                 [FIND_STRUCTURES, "reserveController", 4, "conqueror", structure => structure.structureType === STRUCTURE_CONTROLLER && structure.owner == undefined],
                 [FIND_HOSTILE_CREEPS, "attack", 4, "fighter", null],
@@ -29,6 +33,10 @@ const missionCenter = {
         }
     },
     _createMission: function(roomName, FIND_, actionString, priority, creepType, filterFunction = null, resource = RESOURCE_ENERGY) {
+        if (Memory.rooms[roomName] == undefined) {
+            Memory.rooms[roomName] = {};
+            Memory.rooms[roomName].missions = [];
+        }
         let targets;
         if (FIND_ instanceof RoomPosition) {
             targets = [{id: [FIND_.x, FIND_.y, FIND_.roomName]}]

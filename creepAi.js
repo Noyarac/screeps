@@ -67,7 +67,8 @@ const creepAi = function() {
         }
     }
     p._getMission = function() {
-        for (let mission of Memory.rooms[this.room.name].missions.filter(m => m.creep === undefined && m.type === this.memory.type && !(this.store.getFreeCapacity() < 50 && ["withdraw", "harvest"].includes(m.target[1])), this)) {
+        // moveTo only for ticksToLive > 1200
+        for (let mission of Memory.rooms[this.room.name].missions.filter(m => m.creep === undefined && m.type === this.memory.type && !(this.ticksToLive < 1200 && ["moveTo"].includes(m.target[1])) && !(this.store.getFreeCapacity() < 50 && ["withdraw", "harvest"].includes(m.target[1])), this)) {
             mission.creep = this.name;
             this.memory.mission = mission;
             break;

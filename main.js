@@ -9,7 +9,13 @@ const missionCenter = require("./missionCenter");
 
 module.exports.loop = function () {
     memoryManagement.clean();
-    // memoryManagement.clearAllMissions();
+    // Conquer macro
+    if (!Memory.keepMissions) {
+        Memory.keepMissions = true;
+        memoryManagement.clearAllMissions();
+        missionCenter._createMission("W53N7", new RoomPosition(11,36,"W50N6"), "moveTo", 6, "worker");
+        missionCenter._createMission("W50N6", new RoomPosition(11,31,"W51N4"), "moveTo", 6, "worker");
+    }
     for (const link of _.filter(Game.structures, {structureType: STRUCTURE_LINK})) {
         link.reactToTick();
     }
