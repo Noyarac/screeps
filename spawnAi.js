@@ -1,6 +1,9 @@
 const spawnAi = function() {
     let p = StructureSpawn.prototype;
     p.reactToTick = function() {
+        if (!this.memory.ttl) {
+            this.memory.ttl = 0;
+        }
         if (Game.time > this.memory.ttl) {
             let spawnDelay = 200;
             if (this.memory.targetedMaxCreep === undefined) {
