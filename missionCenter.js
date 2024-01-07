@@ -30,32 +30,36 @@ const missionCenter = {
         }
     },
     _scanAllSubMissions: function(originalListOfSubMissions, roomName, index = 0, listInProgress = [], listOfNewListOfSubMissions = []) {
-        if (index >= originalListOfSubMissions.length) {
-            listOfNewListOfSubMissions.push(listInProgress);
+        try{
+            if (index >= originalListOfSubMissions.length) {
+                listOfNewListOfSubMissions.push(listInProgress);
+                return listOfNewListOfSubMissions;
+            }
+        
+            if (originalListOfSubMissions[index].room == undefined) {
+                originalListOfSubMissions[index].room = roomName;
+            }
+            let thisFloorTargets = [];
+            if (originalListOfSubMissions[index].type === "find") {
+                thisFloorTargets = Game.rooms[originalListOfSubMissions[index].room].find(originalListOfSubMissions[index].target);
+                if (originalListOfSubMissions[index].filterFunction) {
+                    thisFloorTargets = thisFloorTargets.filter(originalListOfSubMissions[index].filterFunction, this);
+                }
+            } else {
+                thisFloorTargets.push(originalListOfSubMissions[index].target);
+            }
+            for (let target of thisFloorTargets) {
+                let newSubMission = new SubMission(target, originalListOfSubMissions[index].actionString, {resource: originalListOfSubMissions[index].resource, room: originalListOfSubMissions[index].room});
+                if (newSubMission.isStillRelevant()) {
+                    const newListInProgress = listInProgress.map(x => x);
+                    newListInProgress.push(newSubMission);
+                    listOfNewListOfSubMissions = this._scanAllSubMissions(originalListOfSubMissions, roomName, index + 1, newListInProgress);
+                }
+            }
             return listOfNewListOfSubMissions;
+        }catch(err){
+            console.log("missionCenter _scanAllSubMissions " + err);
         }
-    
-        if (originalListOfSubMissions[index].room == undefined) {
-            originalListOfSubMissions[index].room = roomName;
-        }
-        let thisFloorTargets = [];
-        if (originalListOfSubMissions[index].type === "find") {
-            thisFloorTargets = Game.rooms[originalListOfSubMissions[index].room].find(originalListOfSubMissions[index].target);
-            if (originalListOfSubMissions[index].filterFunction) {
-                thisFloorTargets = thisFloorTargets.filter(originalListOfSubMissions[index].filterFunction, this);
-            }
-        } else {
-            thisFloorTargets.push(originalListOfSubMissions[index].target);
-        }
-        for (let target of thisFloorTargets) {
-            let newSubMission = new SubMission(target, originalListOfSubMissions[index].actionString, {resource: originalListOfSubMissions[index].resource, room: originalListOfSubMissions[index].room});
-            if (newSubMission.isStillRelevant()) {
-                const newListInProgress = listInProgress.map(x => x);
-                newListInProgress.push(newSubMission);
-                listOfNewListOfSubMissions = this._scanAllSubMissions(originalListOfSubMissions, roomName, index + 1, newListInProgress);
-            }
-        }
-        return listOfNewListOfSubMissions;
     },
     getHash(s) {
         return s.split("").reduce(function(a, b) {
@@ -64,24 +68,28 @@ const missionCenter = {
         }, 0);
     },
     _createMission: function(roomName, listOfSubMissions, priority, creepType) {
-        Memory.rooms[roomName] = Memory.rooms[roomName] || {missions: []};
-        const listOfLists = this._scanAllSubMissions(listOfSubMissions, roomName);
-        for (const list of listOfLists) {
-            let encodedSubMissions = [];
-            let name = ""
-            for (const subMission of list) {
-                const target = (subMission.type == "target") ? subMission.target.id : [subMission.target.x, subMission.target.y, subMission.target.roomName];
-                encodedSubMissions.push([target, subMission.actionString, subMission.room, subMission.resource]);
-                name += ((subMission.type == "target") ? subMission.target.id : subMission.target.x + subMission.target.y) + subMission.actionString + subMission.room
-            }
-            try{
-                const hash = this.getHash(name);
-                if (!Memory.rooms[roomName].missions.some(mission => mission.name == hash && mission.creep === undefined)) {
-                    Memory.rooms[roomName].missions.push({name: hash, room: roomName, priority: priority, type: creepType, subMissionsList: encodedSubMissions});
+        try{
+            Memory.rooms[roomName] = Memory.rooms[roomName] || {missions: []};
+            const listOfLists = this._scanAllSubMissions(listOfSubMissions, roomName);
+            for (const list of listOfLists) {
+                let encodedSubMissions = [];
+                let name = ""
+                for (const subMission of list) {
+                    const target = (subMission.type == "target") ? subMission.target.id : [subMission.target.x, subMission.target.y, subMission.target.roomName];
+                    encodedSubMissions.push([target, subMission.actionString, subMission.room, subMission.resource]);
+                    name += ((subMission.type == "target") ? subMission.target.id : subMission.target.x + subMission.target.y) + subMission.actionString + subMission.room
                 }
-            }catch(err){
-                console.log(err)
+                try{
+                    const hash = this.getHash(name);
+                    if (!Memory.rooms[roomName].missions.some(mission => mission.name == hash && mission.creep === undefined)) {
+                        Memory.rooms[roomName].missions.push({name: hash, room: roomName, priority: priority, type: creepType, subMissionsList: encodedSubMissions});
+                    }
+                }catch(err){
+                    console.log(err)
+                }
             }
+        }catch(err){
+            console.log("missionCenter _createMission " + err);
         }
     }
 };

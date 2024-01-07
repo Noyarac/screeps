@@ -9,14 +9,17 @@ require("./spawnAi")();
 const missionCenter = require("./missionCenter");
 
 module.exports.loop = function () {
+    debugger;
     memoryManagement.clean();
     if (!Memory.keepMissions) {
         memoryManagement.clearAllMissions();
         Memory.keepMissions = true;
     }
-    for (roomName in Game.rooms) {
-        if (Memory.rooms[roomName] == undefined) Memory.rooms[roomName] = {missions: []};
-
+    for (const roomName in Game.rooms) {
+        if (Memory.rooms[roomName] == undefined) {
+            Memory.rooms[roomName] = {};
+            Memory.rooms[roomName].missions = [];
+        }
     }
     if (!Memory.conquer) {
         Memory.conquer = true;
