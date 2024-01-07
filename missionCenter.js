@@ -5,7 +5,7 @@ const missionCenter = {
     updateList: function(roomName) {
         try {
             for (const mission of [
-                [[new SubMission(FIND_STRUCTURES, "reserveController", {filterFunction: structure => structure.structureType === STRUCTURE_CONTROLLER && structure.owner == undefined})], 4, "conqueror"],
+                // [[new SubMission(FIND_STRUCTURES, "reserveController", {filterFunction: structure => structure.structureType === STRUCTURE_CONTROLLER && structure.owner == undefined})], 4, "conqueror"],
                 [[new SubMission(FIND_HOSTILE_CREEPS, "attack")], 4, "fighter"],
                 [[new SubMission(FIND_MY_CREEPS, "heal", {filterFunction: creep => creep.hitsMax - creep.hits > 0})], 4, "tower"],
                 [[new SubMission(FIND_HOSTILE_STRUCTURES, "attack", {filterFunction: struct => struct.structureType != STRUCTURE_KEEPER_LAIR})], 3, "fighter"],
@@ -50,8 +50,9 @@ const missionCenter = {
         for (let target of thisFloorTargets) {
             let newSubMission = new SubMission(target, originalListOfSubMissions[index].actionString, {resource: originalListOfSubMissions[index].resource, room: originalListOfSubMissions[index].room});
             if (newSubMission.isStillRelevant()) {
-                listInProgress.push(newSubMission);
-                listOfNewListOfSubMissions = this._scanAllSubMissions(originalListOfSubMissions, roomName, index + 1, listInProgress);
+                const newListInProgress = listInProgress.map(x => x);
+                newListInProgress.push(newSubMission);
+                listOfNewListOfSubMissions = this._scanAllSubMissions(originalListOfSubMissions, roomName, index + 1, newListInProgress);
             }
         }
         return listOfNewListOfSubMissions;
@@ -63,17 +64,15 @@ const missionCenter = {
         }, 0);
     },
     _createMission: function(roomName, listOfSubMissions, priority, creepType) {
+        Memory.rooms[roomName] = Memory.rooms[roomName] || {missions: []};
         const listOfLists = this._scanAllSubMissions(listOfSubMissions, roomName);
         for (const list of listOfLists) {
             let encodedSubMissions = [];
             let name = ""
             for (const subMission of list) {
-                const target = (subMission.type == "target") ? subMission.target.id : [subMission.target.x, subMission.target.y];
+                const target = (subMission.type == "target") ? subMission.target.id : [subMission.target.x, subMission.target.y, subMission.target.roomName];
                 encodedSubMissions.push([target, subMission.actionString, subMission.room, subMission.resource]);
                 name += ((subMission.type == "target") ? subMission.target.id : subMission.target.x + subMission.target.y) + subMission.actionString + subMission.room
-                if (subMission.actionString == "withdraw") {
-                    debugger
-                }
             }
             try{
                 const hash = this.getHash(name);

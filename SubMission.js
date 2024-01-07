@@ -14,8 +14,10 @@ class SubMission{
             case [Source, Structure, Creep, ConstructionSite, Tombstone, Ruin, Resource].some(item => this.target instanceof item):
                 this.type = "target";
                 break;
-            case this.target instanceof RoomPosition:
+            case this.target instanceof Array:
+                this.target = new RoomPosition(...this.target)
                 this.type = "roomPosition";
+                this.room = this.target[2];
                 break;
             case typeof this.target == "number":
                 this.type = "find";
@@ -47,7 +49,7 @@ class SubMission{
 }
 Object.defineProperty(SubMission, "hash", {
     get: function() {
-        this._hash ??= (str(this.target) + this.actionString + this.room + str(Game.time)).split("").reduce(function(a, b) {
+        this._hash = this._hash || (str(this.target) + this.actionString + this.room + str(Game.time)).split("").reduce(function(a, b) {
           a = ((a << 5) - a) + b.charCodeAt(0);
           return a & a;
         }, 0);

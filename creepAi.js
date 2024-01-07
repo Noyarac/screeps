@@ -20,11 +20,15 @@ const creepAi = function() {
             }
             if (this.memory.mission) {
                 if (this.memory.mission.subMissionsList && this.memory.mission.subMissionsList.length > 0) {
-                    if (['transfer', 'repair', 'build', 'upgradeController'].includes(this.memory.mission.subMissionsList.at(-1)[1]) && this.store.getUsedCapacity(RESOURCE_ENERGY) === 0 && !this.memory.subMission) {
-                        let sourceSpot = this._findSourceSpot();
-                        if (sourceSpot) {
-                            this.memory.mission.subMissionsList.push([sourceSpot, (Game.getObjectById(sourceSpot) instanceof Source ) ? 'harvest' : "withdraw", this.room.name, RESOURCE_ENERGY]);
+                    try {
+                        if (['transfer', 'repair', 'build', 'upgradeController'].includes(this.memory.mission.subMissionsList[this.memory.mission.subMissionsList.length - 1][1]) && this.store.getUsedCapacity(RESOURCE_ENERGY) === 0 && !this.memory.subMission) {
+                            let sourceSpot = this._findSourceSpot();
+                            if (sourceSpot) {
+                                this.memory.mission.subMissionsList.push([sourceSpot, (Game.getObjectById(sourceSpot) instanceof Source ) ? 'harvest' : "withdraw", this.room.name, RESOURCE_ENERGY]);
+                            }
                         }
+                    }catch(err){
+                        console.log(this.memory.mission.subMissionsList);
                     }
                     this.memory.subMission = this.memory.mission.subMissionsList.pop();
                     if (this.memory.subMission[1] === 'attack' && this.getActiveBodyparts(ATTACK) === 0 && this.getActiveBodyparts(RANGED_ATTACK) > 0) {
@@ -38,9 +42,6 @@ const creepAi = function() {
         }
     }
     p._autoAction = function() {
-        if (this.memory.subMission[1] == "withdraw") {
-            debugger;
-        }
         try {
             const actionString = this.memory.subMission[1];
             const target = (this.memory.subMission[0] instanceof Array) ? new RoomPosition(...this.memory.subMission[0]) : Game.getObjectById(this.memory.subMission[0]);  
@@ -70,7 +71,7 @@ const creepAi = function() {
     }
     p._getMission = function() {
         try{
-            for (let mission of Memory.rooms[this.room.name].missions.filter(m => m.creep === undefined && m.type === this.memory.type && !(this.store.getFreeCapacity() < 50 && m.subMissionsList.some(subMission => ["withdraw", "harvest"].includes(subMission[1]))), this)) {
+            for (let mission of Memory.rooms[this.room.name].missions.filter(m => {if (m.name == "1909327011") debugger; return m.creep === undefined && m.type === this.memory.type && !(((this.store.getFreeCapacity() / this.store.getCapacity()) < 0.3) && m.subMissionsList.some(subMission => ["withdraw", "harvest"].includes(subMission[1])))}, this)) {
                 mission.creep = this.name;
                 this.memory.mission = mission;
                 break;
@@ -81,7 +82,8 @@ const creepAi = function() {
     }
     p._checkFinishSubMission = function() {
         try{
-            const actionString = this.memory.subMission[1]; 
+            const actionString = this.memory.subMission[1];
+            if (this.memory.subMission[1] == "moveTo") debugger;
             const target = (this.memory.subMission[0] instanceof Array) ? new RoomPosition(...this.memory.subMission[0]) : Game.getObjectById(this.memory.subMission[0]);  
             if (target === null) {
                 return true;

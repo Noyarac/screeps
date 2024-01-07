@@ -7,11 +7,11 @@ const mem = {
             }
         }
         for (const roomName in Game.rooms) {
-            Memory.rooms[roomName] ??= new Object;
-            Memory.rooms[roomName].missions ??= new Array;
+            Memory.rooms[roomName] = Memory.rooms[roomName] || new Object;
+            Memory.rooms[roomName].missions = Memory.rooms[roomName].missions || new Array;
         }
         for (const spawn of Object.values(Game.spawns)) {
-            spawn.memory.ttl ??= 0;
+            spawn.memory.ttl = spawn.memory.ttl || 0;
         }
     },
     clearAllMissions: function() {
@@ -22,16 +22,29 @@ const mem = {
         }
     },
     clean: function(force = false) {
-        if (!(Game.time % this.cleanFrequency) || force) {
-            for (const creepName in Memory.creeps) {
+        const roomNames = Object.keys(Memory.rooms);
+        for (const roomName of roomNames) {
+            if (Game[roomName] == undefined) {
+                Memory.rooms[roomName] = undefined;
+            }
+        }
+        if ((Game.time % this.cleanFrequency == 0) || force) {
+            const oldCreepNames = Object.keys(Memory.creeps).map(x=>x);
+            for (const creepName of oldCreepNames) {
                 if (Game.creeps[creepName] == undefined) delete Memory.creeps[creepName];
             }
             for (const type of ["towers", "links"]) {
-                for (const structureId in Memory[type]) {
+                const oldStructNames = Object.keys(Memory[type]).map(x=>x);
+                for (const structureId in oldStructNames) {
                     if (Game.getObjectById(structureId) == null) delete Memory[type][structureId];
                 }
             }
-            for (const roomName in Game.rooms) {
+            const oldRoomNames = Object.keys(Game.rooms).map(x=>x);
+            for (const roomName in oldRoomNames) {
+                if (Game.rooms[roomName] == undefined) {
+                    Memory.rooms[roomName] = undefined;
+                    continue;
+                }
                 const creepNameList = Object.keys(Game.creeps);
                 Memory.rooms[roomName].missions = Memory.rooms[roomName].missions.filter(mission =>
                     creepNameList.includes(mission.creep) ||
