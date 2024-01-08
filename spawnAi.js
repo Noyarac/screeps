@@ -5,7 +5,10 @@ const spawnAi = function() {
             this.memory.ttl = 0;
         }
         if (Game.time > this.memory.ttl) {
-            let spawnDelay = 200;
+            const CREEP_LIFETIME = 1500;
+            const BUFFER = 100 ;
+            const creepQuantity = Math.max(1, Object.values(Game.creeps).filter(creep => creep.room.name == this.room.name && !creep.spawning));
+            const spawnDelay = ~~((CREEP_LIFETIME - BUFFER) / creepQuantity);
             if (this.memory.targetedMaxCreep === undefined) {
                 this.memory.targetedMaxCreep = this.estimateMaxCreep();
             }
