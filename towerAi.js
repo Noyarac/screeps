@@ -10,7 +10,7 @@ const towerAi = function() {
         if (Memory.towers[this.id].mission === undefined && this.store.getUsedCapacity(RESOURCE_ENERGY) >= 10) {
             this._getMission();
         }
-        if (Memory.towers[this.id].mission != undefined) {
+        if (Memory.towers[this.id].mission != undefined && Memory.towers[this.id].subMission != undefined) {
             const target = Game.getObjectById(Memory.towers[this.id].subMission[0]);
             this[Memory.towers[this.id].subMission[1]](target);
         }
