@@ -59,7 +59,15 @@ const creepAi = function() {
                 }
             }
             if (this[actionString](target, (target instanceof RoomPosition) ? undefined : this.memory.subMission[2]) === ERR_NOT_IN_RANGE) {
-                this.moveTo(target, {reusePath: 7})
+                const dangerousTarget = (target instanceof RoomPosition) ? target : target.room;
+                if (dangerousTarget.findInRange(FIND_HOSTILE_CREEPS, 5).length > 0) {
+                    this.say("😨");
+                    this.memory.mission.creep = undefined;
+                    this.memory.mission = undefined;
+                    this.memory.subMission = undefined;
+                } else {
+                    this.moveTo(target, {reusePath: 7})
+                }
             }
         }
         catch(err) {
