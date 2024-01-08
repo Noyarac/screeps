@@ -82,7 +82,7 @@ const spawnAi = function() {
     p._countCreeps = function(type) {
         const ROOM_NAME = this.room.name;
         const spwng = (this.spawning === null) ? 0 : 1;
-        return Object.values(Game.creeps).filter(creep => {console.log(Object.entries(creep)); return creep.room.name === ROOM_NAME && creep.memory.type === type}).length + spwng
+        return Object.values(Game.creeps).filter(creep => creep.room.name === ROOM_NAME && creep.memory.type === type).length + spwng
     }
 };
 
