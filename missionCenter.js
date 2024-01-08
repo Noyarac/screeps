@@ -13,7 +13,7 @@ const missionCenter = {
                 [FIND_MY_CREEPS, "heal", 4, "tower", creep => creep.hitsMax - creep.hits > 0, null],
                 [FIND_HOSTILE_STRUCTURES, "attack", 3, "fighter", struct => struct.structureType != STRUCTURE_KEEPER_LAIR],
                 [FIND_RUINS, "withdraw", 3, "worker", ruin => !(ruin.store.getFreeCapacity() === 0)],
-                [FIND_TOMBSTONES, "withdraw", 3, "worker", tomb => tomb.store.getUsedCapacity()],
+                [FIND_TOMBSTONES, "withdraw", 3, "worker", tomb => tomb.store.getUsedCapacity() && tomb.room.findInRange(FIND_HOSTILE_CREEPS, 5).length == 0],
                 [FIND_DROPPED_RESOURCES, "pickup", 3, "worker", ress => ress.amount > 50],
                 [FIND_MY_STRUCTURES, "transfer", 3, "worker", struct => struct.structureType === STRUCTURE_SPAWN && struct.store.getFreeCapacity(RESOURCE_ENERGY)],
                 [FIND_MY_STRUCTURES, "transfer", 2, "worker", struct => [STRUCTURE_EXTENSION, STRUCTURE_TOWER].includes(struct.structureType) && struct.store.getFreeCapacity(RESOURCE_ENERGY)],
