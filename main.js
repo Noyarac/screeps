@@ -15,22 +15,6 @@ module.exports.loop = function () {
         memoryManagement.clearAllMissions();
         Memory.keepMissions = true;
     }
-    for (const roomName in Game.rooms) {
-        if (Memory.rooms[roomName] == undefined) {
-            Memory.rooms[roomName] = {};
-            Memory.rooms[roomName].missions = [];
-        }
-    }
-    if (!Memory.conquer) {
-        Memory.conquer = true;
-        missionCenter._createMission("W53N7",[
-            new SubMission(new RoomPosition(23,33,"W51N6"), "moveTo"),
-            new SubMission(new RoomPosition(14,47,"W50N6"), "moveTo"),
-            new SubMission(new RoomPosition(14,47,"W50N5"), "moveTo"),
-            new SubMission(new RoomPosition(10,14,"W50N4"), "moveTo"),
-            new SubMission(Game.getObjectById("659ace83bf0ab100124fa759"), "build")
-        ], 6, "worker");
-    }
     for (const link of _.filter(Game.structures, {structureType: STRUCTURE_LINK})) {
         link.reactToTick();
     }
