@@ -46,7 +46,7 @@ const spawnAi = function() {
                 ], Game.time, {memory: {type: "worker"}});
                 this.memory.ttl = Game.time + spawnDelay;
             }
-            if (this.room.energyAvailable >= 450 && this._countCreeps("linkOp") < 1) {
+            if (this.room.energyAvailable >= 450 && this._countCreeps("linkOp") < 1 && this.room.find(FIND_MY_STRUCTURES).filter(struct => struct.structureType == STRUCTURE_LINK).length > 0) {
                 this.spawnCreep([
                     ...new Array(3).fill(WORK), 
                     ...new Array(1).fill(CARRY), 
