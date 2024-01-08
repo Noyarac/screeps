@@ -2,41 +2,46 @@ const Mission = require("./Mission");
 const creepAi = function() {
     let p = Creep.prototype;
     p.reactToTick = function() {
-        if (this.spawning) { 
+        try{
+            if (this.spawning) { 
             return;
-        }
-        if (this.memory.subMission != undefined) {
-            if (this._checkFinishSubMission()) {
-                this._finishSubMission();
             }
-        }
-        if (!this.memory.subMission) {
-            if (this.memory.mission === undefined) {
-                if (this.store.getCapacity() !== null && (this.store.getUsedCapacity(RESOURCE_ENERGY) + this.store.getFreeCapacity() != this.store.getCapacity())) {
-                    this.memory.mission = new Mission("unload", 5, "anyCreep", [this.room.find(FIND_MY_STRUCTURES, {filter: {structureType: STRUCTURE_STORAGE}})[0].id, "transfer", null])
-                } else {
-                    this._getMission();
-                }
-            }
-            if (this.memory.mission != undefined) {
-                if (this.memory.mission.target) {
-                    if (this.memory.mission.target[1] === 'attack' && this.getActiveBodyparts(ATTACK) === 0 && this.getActiveBodyparts(RANGED_ATTACK) > 0) {
-                        this.memory.mission.target[1] = 'rangedAttack';
+            if (this.memory.subMission != undefined) {
+                if (this._checkFinishSubMission()) {
+                        this._finishSubMission();
                     }
-                    if (['transfer', 'repair', 'build', 'upgradeController'].includes(this.memory.mission.target[1]) && this.store.getUsedCapacity(RESOURCE_ENERGY) === 0 && this.memory.mission.name !== "unload") {
-                        let sourceSpot = this._findSourceSpot();
-                        if (sourceSpot) {
-                            this.memory.subMission = [sourceSpot, (Game.getObjectById(sourceSpot) instanceof Source ) ? 'harvest' : "withdraw", RESOURCE_ENERGY];
-                        }
+            }
+            if (!this.memory.subMission) {
+                if (this.memory.mission === undefined) {
+                    if (this.store.getCapacity() !== null && (this.store.getUsedCapacity(RESOURCE_ENERGY) + this.store.getFreeCapacity() != this.store.getCapacity())) {
+                        this.memory.mission = new Mission("unload", 5, "anyCreep", [this.room.find(FIND_STRUCTURES, {filter: {structureType: STRUCTURE_STORAGE}})[0].id, "transfer", null])
                     } else {
-                        this.memory.subMission = this.memory.mission.target;
-                        this.memory.mission.target = undefined;
+                        this._getMission();
+                    }
+                }
+                if (this.memory.mission != undefined) {
+                    if (this.memory.mission.target) {
+                        if (this.memory.mission.target[1] === 'attack' && this.getActiveBodyparts(ATTACK) === 0 && this.getActiveBodyparts(RANGED_ATTACK) > 0) {
+                            this.memory.mission.target[1] = 'rangedAttack';
+                        }
+                        if (['transfer', 'repair', 'build', 'upgradeController'].includes(this.memory.mission.target[1]) && this.store.getUsedCapacity(RESOURCE_ENERGY) === 0 && this.memory.mission.name !== "unload") {
+                            let sourceSpot = this._findSourceSpot();
+                            if (sourceSpot) {
+                                this.memory.subMission = [sourceSpot, (Game.getObjectById(sourceSpot) instanceof Source ) ? 'harvest' : "withdraw", RESOURCE_ENERGY];
+                            }
+                        } else {
+                            this.memory.subMission = this.memory.mission.target;
+                            this.memory.mission.target = undefined;
+                        }
                     }
                 }
             }
+            if (this.memory.subMission) {
+                this._autoAction()
+            }
+        }catch(err){
+            console.log("creep reactToTick " + err);
         }
-        if (this.memory.subMission)
-            this._autoAction()
     }
     p._autoAction = function() {
         try {
