@@ -2,8 +2,7 @@ const Mission = require("./Mission");
 const creepAi = function() {
     let p = Creep.prototype;
     p.reactToTick = function() {
-        try{
-            if (this.spawning) { 
+        if (this.spawning) { 
             return;
         }
         if (this.memory.subMission != undefined) {
