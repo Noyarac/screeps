@@ -1,9 +1,7 @@
 const spawnAi = function() {
     let p = StructureSpawn.prototype;
     p.reactToTick = function() {
-        if (!this.memory.ttl) {
-            this.memory.ttl = 0;
-        }
+        this.memory.ttl = this.memory.ttl || 0
         if (Game.time > this.memory.ttl || Object.values(Game.creeps).filter(c => c.room.name == this.room.name).length == 0) {
             const CREEP_LIFETIME = 1500;
             const BUFFER = 100 ;

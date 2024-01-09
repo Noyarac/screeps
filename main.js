@@ -1,6 +1,7 @@
 const memoryManagement = require("./memoryManagement");
 memoryManagement.initialize();
 const Mission = require("./Mission");
+const SubMission = require("./SubMission");
 require("./linkAi")();
 require("./towerAi")(); 
 require("./creepAi")();
@@ -10,6 +11,10 @@ const missionCenter = require("./missionCenter");
 module.exports.loop = function () {
     debugger;
     memoryManagement.clean();
+    if (!Memory.keepMissions) {
+        memoryManagement.clearAllMissions();
+        Memory.keepMissions = true;
+    }
     for (const link of _.filter(Game.structures, {structureType: STRUCTURE_LINK})) {
         link.reactToTick();
     }

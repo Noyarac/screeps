@@ -1,17 +1,17 @@
+const SubMission = require("./SubMission");
+
 class Mission{
     /** 
      * @param {string} name 
      * @param {number} priority
      * @param {string} type
-     * @param {Array.<(Source|Structure|Creep|ConstructionSite), string>} target 
+     * @param {Array.<SubMission>} subMissionsList
      */
-    constructor(name, priority, type, target, ){
+    constructor(name, priority, type, subMissionsList){
         this.name = name;
         this.priority = priority;
         this.type = type;
-        this.target = target;
-       /** @type {string} */
-        this.creep = undefined;
+        this.subMissionList = subMissionsList;
     }
 }
 module.exports = Mission;
