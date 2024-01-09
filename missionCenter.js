@@ -14,7 +14,7 @@ const missionCenter = {
                 [[new SubMission(FIND_MY_CREEPS, "heal", {filterFunction: creep => creep.hitsMax - creep.hits > 0})], 4, "tower"],
                 [[new SubMission(FIND_HOSTILE_STRUCTURES, "attack", {filterFunction: struct => struct.structureType != STRUCTURE_KEEPER_LAIR})], 3, "fighter"],
                 [[new SubMission(FIND_RUINS, "withdraw", {filterFunction: ruin => !(ruin.store.getFreeCapacity() === 0)})], 3, "worker"],
-                [[new SubMission(FIND_TOMBSTONES, "withdraw", {filterFunction: tomb => tomb.store.getUsedCapacity()})], 3, "worker" && tomb.pos.findInRange(FIND_HOSTILE_CREEPS, 5).length == 0],
+                [[new SubMission(FIND_TOMBSTONES, "withdraw", {filterFunction: tomb => tomb.store.getUsedCapacity() && tomb.pos.findInRange(FIND_HOSTILE_CREEPS, 5).length == 0})], 3, "worker"],
                 [[new SubMission(FIND_DROPPED_RESOURCES, "pickup", {filterFunction: ress => ress.amount > 50})], 3, "worker"],
                 [[new SubMission(FIND_MY_STRUCTURES, "transfer", {filterFunction: struct => struct.structureType === STRUCTURE_SPAWN && struct.store.getFreeCapacity(RESOURCE_ENERGY), resource: RESOURCE_ENERGY})], 3, "worker"],
                 [[new SubMission(FIND_MY_STRUCTURES, "transfer", {filterFunction: struct => [STRUCTURE_EXTENSION, STRUCTURE_TOWER].includes(struct.structureType) && struct.store.getFreeCapacity(RESOURCE_ENERGY), resource: RESOURCE_ENERGY})], 2, "worker"],
