@@ -1,73 +1,57 @@
 const spawnAi = function() {
     let p = StructureSpawn.prototype;
     p.reactToTick = function() {
-        this.memory.ttl = this.memory.ttl || 0
-        if (Game.time > this.memory.ttl || Object.values(Game.creeps).filter(c => c.room.name == this.room.name).length == 0) {
-            const CREEP_LIFETIME = 1500;
-            const BUFFER = 100 ;
-            const creepQuantity = Math.max(1, Object.values(Game.creeps).filter(creep => creep.room.name == this.room.name && !creep.spawning));
-            const spawnDelay = ~~((CREEP_LIFETIME - BUFFER) / creepQuantity);
-            if (this.memory.targetedMaxCreep === undefined) {
-                this.memory.targetedMaxCreep = this.estimateMaxCreep();
+        try{
+            const workersCount = this._countCreeps("worker");
+            if (Game.time > this.memory.ttl || workersCount === 0) {
+                const CREEP_LIFETIME = 1500;
+                const BUFFER = 100 ;
+                const spawnDelay = ~~((CREEP_LIFETIME - BUFFER) / this._countCreeps());
+                this.memory.targetedMaxCreep = this.memory.targetedMaxCreep || this.estimateMaxCreep();
+                if (workersCount < this.memory.targetedMaxCreep) {
+                    let [workQuantity, carryQuantity, moveQuantity] = Array(3).fill(~~(this.room.energyAvailable / (BODYPART_COST[WORK] + BODYPART_COST[CARRY] + BODYPART_COST[MOVE])));
+                    let energyRemaining = this.room.energyAvailable % (BODYPART_COST[WORK] + BODYPART_COST[CARRY] + BODYPART_COST[MOVE]);
+                    moveQuantity += ~~(energyRemaining / 2 / BODYPART_COST[MOVE]);
+                    carryQuantity += ~~(energyRemaining / BODYPART_COST[MOVE]);
+                    const status = this.spawnCreep([
+                        ...new Array(workQuantity).fill(WORK), 
+                        ...new Array(carryQuantity).fill(CARRY), 
+                        ...new Array(moveQuantity).fill(MOVE)
+                    ], this.room.name + Game.time.toString(), {memory: {type: "worker"}});
+                    if (status === OK ) {
+                        this.memory.ttl = Game.time + spawnDelay;
+                    } else {
+                        console.log(`Error spawning worker creep[${workQuantity} * WORK, ${carryQuantity} * CARRY, ${moveQuantity} * MOVE]: ${status}`)
+                    }
+                }
+                const targetedLinkOpQuantity = this.room.find(FIND_MY_STRUCTURES).filter(struct => struct.structureType === STRUCTURE_LINK && struct.memory.type === "sender").length;
+                if (this._countCreeps("linkOp") < targetedLinkOpQuantity && this.room.energyAvailable >= (BODYPART_COST[WORK] * 3 + BODYPART_COST[CARRY] * 1 + BODYPART_COST[MOVE] * 2)) {
+                    let status = this.spawnCreep([
+                        ...new Array(3).fill(WORK), 
+                        ...new Array(1).fill(CARRY), 
+                        ...new Array(2).fill(MOVE)
+                    ], this.room.name + str(Game.time), {memory: {type: "linkOp"}});
+                    if (status === OK ) {
+                        this.memory.ttl = Game.time + spawnDelay;
+                    } else {
+                        console.log(`Error spawning linkOp creep: ${status}`)
+                    }
+                }
+                if (this._countCreeps("fighter") < 1  && this.room.energyAvailable >= (BODYPART_COST[TOUGH] * 8 + BODYPART_COST[MOVE] * 8 + BODYPART_COST[ATTACK] * 4)) {
+                    let status = this.spawnCreep([
+                            ...new Array(8).fill(TOUGH),
+                            ...new Array(8).fill(MOVE),
+                            ...new Array(4).fill(ATTACK) 
+                        ], this.room.name + str(Game.time), {memory: {type: "fighter"}});
+                    if (status === OK ) {
+                        this.memory.ttl = Game.time + spawnDelay;
+                    } else {
+                        console.log(`Error spawning fighter creep: ${status}`)
+                    }
+                }
             }
-            const maxCreep = this.memory.targetedMaxCreep;
-            const countWorkers = this._countCreeps("worker");
-            if (this.room.energyAvailable >= 1500 && countWorkers < maxCreep) {
-                this.spawnCreep([
-                    ...new Array(7).fill(WORK), 
-                    ...new Array(8).fill(CARRY), 
-                    ...new Array(8).fill(MOVE)
-                ], Game.time, {memory: {type: "worker"}});
-                this.memory.ttl = Game.time + spawnDelay;
-            }
-            if (this.room.energyAvailable >= 1200 && countWorkers < maxCreep) {
-                this.spawnCreep([
-                    ...new Array(6).fill(WORK), 
-                    ...new Array(6).fill(CARRY), 
-                    ...new Array(6).fill(MOVE)
-                ], Game.time, {memory: {type: "worker"}});
-                this.memory.ttl = Game.time + spawnDelay;
-            }
-            if (this.room.energyAvailable >= 800 && countWorkers < maxCreep) {
-                this.spawnCreep([
-                    ...new Array(4).fill(WORK), 
-                    ...new Array(4).fill(CARRY), 
-                    ...new Array(4).fill(MOVE)
-                ], Game.time, {memory: {type: "worker"}});
-                this.memory.ttl = Game.time + spawnDelay;
-            }
-            if (this.room.energyAvailable >= 550 && countWorkers < maxCreep) {
-                this.spawnCreep([
-                    ...new Array(3).fill(WORK), 
-                    ...new Array(2).fill(CARRY), 
-                    ...new Array(3).fill(MOVE)
-                ], Game.time, {memory: {type: "worker"}});
-                this.memory.ttl = Game.time + spawnDelay;
-            }
-            if (this.room.energyAvailable >= 450 && this._countCreeps("linkOp") < 1 && this.room.find(FIND_MY_STRUCTURES).filter(struct => struct.structureType == STRUCTURE_LINK).length > 0) {
-                this.spawnCreep([
-                    ...new Array(3).fill(WORK), 
-                    ...new Array(1).fill(CARRY), 
-                    ...new Array(2).fill(MOVE)
-                ], Game.time, {memory: {type: "linkOp"}});
-                this.memory.ttl = Game.time + spawnDelay;
-            }
-            if (this.room.energyAvailable >= 300 && countWorkers < maxCreep) {
-                this.spawnCreep([
-                    ...new Array(1).fill(WORK), 
-                    ...new Array(2).fill(CARRY), 
-                    ...new Array(2).fill(MOVE)
-                ], Game.time, {memory: {type: "worker"}});
-                this.memory.ttl = Game.time + spawnDelay;
-            }
-            if (this.room.energyAvailable >= 800 && this._countCreeps("fighter") < 1) {
-                this.spawnCreep([
-                    ...new Array(8).fill(TOUGH),
-                    ...new Array(8).fill(MOVE),
-                    ...new Array(4).fill(ATTACK) 
-                ], Game.time, {memory: {type: "fighter"}});
-                this.memory.ttl = Game.time + spawnDelay;
-            }
+        }catch(err){
+            console.log("spawnAi reactToTick " + err);
         }
     }
     p.estimateMaxCreep = function () {
@@ -82,10 +66,12 @@ const spawnAi = function() {
             return results    
         }, 0)*1.5);
     }
-    p._countCreeps = function(type) {
-        const ROOM_NAME = this.room.name;
-        const spwng = (this.spawning === null) ? 0 : 1;
-        return Object.values(Game.creeps).filter(creep => creep.room.name === ROOM_NAME && creep.memory.type === type).length + spwng
+    p._countCreeps = function(type = undefined) {
+        let roomCreeps = _.filter(Game.creeps, creep => creep.room.name === this.room.name);
+        if (type) {
+            roomCreeps = _.filter(roomCreeps, creep => creep.memory.type === type);
+        }
+        return roomCreeps.length + (this.spawning) ? 1 : 0;
     }
 };
 
