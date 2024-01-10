@@ -11,8 +11,10 @@ const spawnAi = function() {
                 if (workersCount < this.memory.targetedMaxCreep) {
                     let [workQuantity, carryQuantity, moveQuantity] = Array(3).fill(~~(this.room.energyAvailable / (BODYPART_COST[WORK] + BODYPART_COST[CARRY] + BODYPART_COST[MOVE])));
                     let energyRemaining = this.room.energyAvailable % (BODYPART_COST[WORK] + BODYPART_COST[CARRY] + BODYPART_COST[MOVE]);
-                    moveQuantity += ~~(energyRemaining / 2 / BODYPART_COST[MOVE]);
-                    carryQuantity += ~~(energyRemaining / BODYPART_COST[MOVE]);
+                    const extraMove = ~~(energyRemaining / 2 / BODYPART_COST[MOVE]);
+                    moveQuantity += extraMove;
+                    energyRemaining -= extraMove * BODYPART_COST[MOVE];
+                    carryQuantity += ~~(energyRemaining / BODYPART_COST[CARRY]);
                     const status = this.spawnCreep([
                         ...new Array(workQuantity).fill(WORK), 
                         ...new Array(carryQuantity).fill(CARRY), 
@@ -30,7 +32,7 @@ const spawnAi = function() {
                         ...new Array(3).fill(WORK), 
                         ...new Array(1).fill(CARRY), 
                         ...new Array(2).fill(MOVE)
-                    ], this.room.name + str(Game.time), {memory: {type: "linkOp"}});
+                    ], this.room.name + Game.time.toString(), {memory: {type: "linkOp"}});
                     if (status === OK ) {
                         this.memory.ttl = Game.time + spawnDelay;
                     } else {
