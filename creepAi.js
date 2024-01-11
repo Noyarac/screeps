@@ -15,6 +15,7 @@ const creepAi = function() {
                 if (this.store.getCapacity() !== null && (this.store.getUsedCapacity(RESOURCE_ENERGY) + this.store.getFreeCapacity() != this.store.getCapacity())) {
                     this.memory.subMission = [this.room.find(FIND_MY_STRUCTURES, {filter: {structureType: STRUCTURE_STORAGE}})[0].id, "transfer", this.room.name];
                 } else {
+                    debugger;
                     this._getMission();
                 }
             }
@@ -63,7 +64,7 @@ const creepAi = function() {
             }
             if (this[actionString](target, (target instanceof RoomPosition) ? undefined : this.memory.subMission[3]) === ERR_NOT_IN_RANGE) {
                 const dangerousTarget = (target instanceof RoomPosition) ? target : target.pos;
-                if (dangerousTarget.findInRange(FIND_HOSTILE_CREEPS, 5).length > 0) {
+                if ((dangerousTarget.findInRange(FIND_HOSTILE_CREEPS, 5).length > 0) && this.memory.type === "worker") {
                     this.say("😨");
                     this.memory.mission.creep = undefined;
                     this.memory.mission = undefined;
@@ -79,7 +80,7 @@ const creepAi = function() {
     }
     p._getMission = function() {
         try{
-            for (let mission of Memory.rooms[this.room.name].missions.filter(m => {if (m.name == "1909327011") debugger; return m.creep === undefined && m.type === this.memory.type && !(((this.store.getFreeCapacity() / this.store.getCapacity()) < 0.3) && m.subMissionsList.some(subMission => ["withdraw", "harvest"].includes(subMission[1])))}, this)) {
+            for (let mission of Memory.rooms[this.room.name].missions.filter(m => m.creep === undefined && m.type === this.memory.type && !(((this.store.getFreeCapacity() / this.store.getCapacity()) < 0.3) && m.subMissionsList.some(subMission => ["withdraw", "harvest"].includes(subMission[1]))), this)) {
                 mission.creep = this.name;
                 this.memory.mission = mission;
                 break;

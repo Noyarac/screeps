@@ -72,6 +72,7 @@ const missionCenter = {
         }, 0);
     },
     _createMission: function(roomName, listOfSubMissions, priority, creepType) {
+        if (priority == 9) debugger;
         try{
             Memory.rooms[roomName] = Memory.rooms[roomName] || {missions: []};
             const listOfLists = this._scanAllSubMissions(listOfSubMissions, roomName);

@@ -10,6 +10,10 @@ const missionCenter = require("./missionCenter");
 
 module.exports.loop = function () {
     try{
+        if (!Memory.missionCreated) {
+            missionCenter._createMission("sim", [ new SubMission("b91a711437d94b46776f8898", "attack"), new SubMission(new RoomPosition(7, 38, "sim"), "moveTo")], 9, "fighter");
+            Memory.missionCreated = true;
+        }
         memoryManagement.clean();
     }catch(err){console.log("memoryManagement clean "+err)}
     try{

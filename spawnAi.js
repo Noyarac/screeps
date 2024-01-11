@@ -44,7 +44,7 @@ const spawnAi = function() {
                             ...new Array(8).fill(TOUGH),
                             ...new Array(8).fill(MOVE),
                             ...new Array(4).fill(ATTACK) 
-                        ], this.room.name + str(Game.time), {memory: {type: "fighter"}});
+                        ], this.room.name + Game.time.toString(), {memory: {type: "fighter"}});
                     if (status === OK ) {
                         this.memory.ttl = Game.time + spawnDelay;
                     } else {

@@ -17,7 +17,12 @@ class SubMission{
             case this.target instanceof Array:
                 this.target = new RoomPosition(...this.target)
                 this.type = "roomPosition";
-                this.room = this.target[2];
+                this.room = this.target.roomName;
+                break;
+            case this.target instanceof RoomPosition:
+                this.target = target;
+                this.type = "roomPosition";
+                this.room = this.target.roomName;
                 break;
             case typeof this.target == "number":
                 this.type = "find";
