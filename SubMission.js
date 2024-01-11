@@ -1,6 +1,6 @@
 class SubMission{
     /** 
-     * @param {Source|Structure|Creep|ConstructionSite|RoomPosition|number} target Can be an object, a RoomPosition or a FIND_ constant
+     * @param {Source|Structure|Creep|ConstructionSite|RoomPosition|number} target Can be an object, a RoomPosition, an id or a FIND_ constant
      * @param {string} actionString
      * @param {Object} options Can be resource, room or filterFunction
      */
@@ -22,14 +22,18 @@ class SubMission{
             case typeof this.target == "number":
                 this.type = "find";
                 break;
+            case typeof this.target === "string":
+                this.type = "id";
+                break;
         }
     }
     isStillRelevant() {
         if (!["transfer", "build", "withdraw"].includes(this.actionString)) {
             return true;
         }
+        const target = (this.type === "id") ? Game.getObjectById(this.target) : this.target;
         let energyComingSoon = Memory.rooms[this.room].missions
-        .filter(mission => mission.subMissionsList.some(subMission => subMission[0] === this.target.id && subMission[1] == this.actionString) && mission.creep != null)
+        .filter(mission => mission.subMissionsList.some(subMission => subMission[0] === target.id && subMission[1] == this.actionString) && mission.creep != null)
         .reduce((total, mission) => {
             if (Game.creeps[mission.creep]) {
                 total += Game.creeps[mission.creep].getActiveBodyparts(CARRY) * 50;
@@ -38,11 +42,11 @@ class SubMission{
         }, 0);
         switch (this.actionString) {
             case "transfer":
-                return this.target.store.getFreeCapacity(RESOURCE_ENERGY) - energyComingSoon > 0;
+                return target.store.getFreeCapacity(RESOURCE_ENERGY) - energyComingSoon > 0;
             case "build":
-                return this.target.progressTotal - this.target.progress - energyComingSoon > 0;
+                return target.progressTotal - target.progress - energyComingSoon > 0;
             case "withdraw":
-                return this.target.store.getUsedCapacity(RESOURCE_ENERGY) - energyComingSoon > 0;
+                return target.store.getUsedCapacity(RESOURCE_ENERGY) - energyComingSoon > 0;
         }
         return true;
     }
@@ -56,28 +60,4 @@ Object.defineProperty(SubMission, "hash", {
         return this._hash;
     }
 });
-Object.defineProperty(SubMission, "isStillRelevant", {
-    get: function() {
-        if (!["transfer", "build", "withdraw"].includes(this.actionString)) {
-            return true;
-        }
-        let energyComingSoon = Memory.rooms[this.room].missions
-        .filter(mission => mission.subMissionsList.any(subMission => subMission[0] === this.target.id && subMission[1] == this.actionString) && mission.creep != null)
-        .reduce((total, mission) => {
-            if (Game.creeps[mission.creep]) {
-                total += Game.creeps[mission.creep].getActiveBodyparts(CARRY) * 50;
-            }
-            return total;
-        }, 0);
-        switch (this.actionString) {
-            case "transfer":
-                return this.target.store.getFreeCapacity(RESOURCE_ENERGY) - energyComingSoon > 0;
-            case "build":
-                return this.target.progressTotal - this.target.progress - energyComingSoon > 0;
-            case "withdraw":
-                return this.target.store.getUsedCapacity(RESOURCE_ENERGY) - energyComingSoon > 0;
-        }
-        return true;
-    }
-})
 module.exports = SubMission;

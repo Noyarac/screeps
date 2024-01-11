@@ -79,9 +79,23 @@ const missionCenter = {
                 let encodedSubMissions = [];
                 let name = ""
                 for (const subMission of list) {
-                    const target = (subMission.type == "target") ? subMission.target.id : [subMission.target.x, subMission.target.y, subMission.target.roomName];
+                    let target;
+                    switch(subMission.type) {
+                        case "target":
+                            target = subMission.target.id;
+                            name += subMission.target.id;
+                            break;
+                        case "roomPosition":
+                            target = [subMission.target.x, subMission.target.y, subMission.target.roomName];
+                            name += subMission.target.x.toString() + subMission.target.y.toString();
+                            break;
+                        case "id":
+                            target = subMission.target;
+                            name += subMission.target;
+                            break;
+                    }
                     encodedSubMissions.push([target, subMission.actionString, subMission.room, subMission.resource]);
-                    name += ((subMission.type == "target") ? subMission.target.id : subMission.target.x + subMission.target.y) + subMission.actionString + subMission.room
+                    name += subMission.actionString + subMission.room;
                 }
                 try{
                     const hash = this.getHash(name);

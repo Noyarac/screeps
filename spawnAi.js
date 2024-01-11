@@ -3,10 +3,10 @@ const spawnAi = function() {
     p.reactToTick = function() {
         try{
             const workersCount = this._countCreeps("worker");
-            if (Game.time > this.memory.ttl || workersCount === 0) {
+            if ((Game.time > this.memory.ttl && this.room.energyAvailable >= 300) || (workersCount === 0 && this.room.energyAvailable >= 300) || (this.room.energyAvailable == this.room.energyCapacityAvailable)) {
                 const CREEP_LIFETIME = 1500;
                 const BUFFER = 100 ;
-                const spawnDelay = ~~((CREEP_LIFETIME - BUFFER) / this._countCreeps());
+                const spawnDelay = ~~((CREEP_LIFETIME - BUFFER) / (this._countCreeps() + 1));
                 this.memory.targetedMaxCreep = this.memory.targetedMaxCreep || this.estimateMaxCreep();
                 if (workersCount < this.memory.targetedMaxCreep) {
                     let [workQuantity, carryQuantity, moveQuantity] = Array(3).fill(~~(this.room.energyAvailable / (BODYPART_COST[WORK] + BODYPART_COST[CARRY] + BODYPART_COST[MOVE])));
@@ -73,7 +73,7 @@ const spawnAi = function() {
         if (type) {
             roomCreeps = _.filter(roomCreeps, creep => creep.memory.type === type);
         }
-        return roomCreeps.length + (this.spawning) ? 1 : 0;
+        return roomCreeps.length + ((this.spawning) ? 1 : 0);
     }
 };
 
