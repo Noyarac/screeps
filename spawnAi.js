@@ -73,7 +73,7 @@ const spawnAi = function() {
         if (type) {
             roomCreeps = _.filter(roomCreeps, creep => creep.memory.type === type);
         }
-        return roomCreeps.length + (this.spawning) ? 1 : 0;
+        return roomCreeps.length + ((this.spawning) ? 1 : 0);
     }
 };
 
