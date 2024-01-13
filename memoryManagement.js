@@ -2,20 +2,18 @@ const mem = {
     cleanFrequency: 500,
     initialize: function() {
         try{
-            for (const name of ["towers", "links"]) {
-                if (!Memory[name]) {
-                    Memory[name] = new Object;
-                }
-            }
-            for (const roomName in Game.rooms) {
-                Memory.rooms[roomName] = Memory.rooms[roomName] || new Object;
-                Memory.rooms[roomName].missions = Memory.rooms[roomName].missions || new Array;
-            }
             for (const spawn of Object.values(Game.spawns)) {
-                spawn.memory.ttl = spawn.memory.ttl || 0;
+                spawn.memory.ttl ||= 0;
             }
-        }catch(err){
-            console.log("memoryManagement initialize " + err);
+            for (const name of ["towers", "links"]) {
+                Memory[name] ||= new Object;
+                }
+            for (const roomName in Game.rooms) {
+                Memory.rooms[roomName] ||= new Object;
+                Memory.rooms[roomName].missions ||= new Array;
+            }
+        } catch(err) {
+            console.log("memoryManagement initialize:" + err);
         }
     },
     clearAllMissions: function() {

@@ -1,9 +1,7 @@
 const towerAi = function() {
     let p = StructureTower.prototype;
     p.reactToTick = function() {
-        if (!Memory.towers[this.id]) {
-            Memory.towers[this.id] = {id: this.id, mission: undefined};
-        }
+        this.memory ||= {id: this.id};
         if (this._checkFinishMission()) {
             this._finishMission();
         }
@@ -47,5 +45,10 @@ const towerAi = function() {
         Memory.towers[this.id].mission = undefined;
         Memory.towers[this.id].subMission = undefined;
     }
+    Object.defineProperty(p, "memory", {
+        get: function() {
+            return Memory.towers[this.id];
+        }
+    })
 };
 module.exports = towerAi;
