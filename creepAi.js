@@ -86,7 +86,14 @@ const creepAi = function() {
     }
     p._getMission = function() {
         try{
-            for (let mission of Memory.rooms[this.room.name].missions.filter(m => (m.creep == undefined) && (m.type == this.memory.type), this)) {
+            debugger;
+            for (let mission of Memory.rooms[this.room.name].missions
+                .filter(m => 
+                    m.creep == undefined &&
+                    m.type == this.memory.type &&
+                    m.subMissionsList.length > 0 &&
+                    !((this.store.getFreeCapacity() / this.store.getCapacity() < 0.3) && ["harverst", "pickup", "withdraw"].includes(m.subMissionsList[m.subMissionsList.length - 1][1]))
+                , this)) {
                 mission.creep = this.name;
                 this.memory.mission = mission;
                 break;
@@ -103,7 +110,7 @@ const creepAi = function() {
                 return true;
             }
             if (
-                (this.store.getUsedCapacity((this.memory.subMission[3]) == 0) && !((target instanceof Tombstone) || (target instanceof StructureContainer)) && ['build', 'repair', 'transfer', 'upgradeController'].includes(actionString)) ||
+                (this.store.getUsedCapacity(this.memory.subMission[3]) == 0 && !(target instanceof Tombstone || target instanceof StructureContainer) && ['build', 'repair', 'transfer', 'upgradeController'].includes(actionString)) ||
                 ((actionString === 'moveTo') && this.pos.isNearTo(target)) ||
                 ((actionString === 'reserveController') && (target.owner != undefined)) ||
                 ((actionString === 'harvest') && ((target.energy === 0) || (this.store.getFreeCapacity() === 0))) ||

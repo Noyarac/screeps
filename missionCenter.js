@@ -66,6 +66,9 @@ const missionCenter = {
             } else {
                 thisFloorTargets.push(originalListOfSubMissions[index].target);
             }
+            if (thisFloorTargets.length == 0) {
+                return 1;
+            }
             for (let target of thisFloorTargets) {
                 let newSubMission = new SubMission(target, originalListOfSubMissions[index].actionString, {resource: originalListOfSubMissions[index].resource, room: originalListOfSubMissions[index].room});
                 if (!Object.keys(Game.rooms).includes(newSubMission.room) || newSubMission.isStillRelevant()) {
@@ -86,9 +89,11 @@ const missionCenter = {
         }, 0);
     },
     _createMission: function(roomName, listOfSubMissions, priority, creepType) {
-        if (listOfSubMissions.length == 2) debugger;
         try{
             const listOfLists = this._scanAllSubMissions(listOfSubMissions, roomName);
+            if (listOfLists == 1) {
+                return;
+            }
             for (const list of listOfLists) {
                 let encodedSubMissions = [];
                 let name = ""
