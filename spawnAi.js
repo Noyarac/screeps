@@ -58,8 +58,9 @@ const spawnAi = function() {
     }
     p._isAllowedToSpawn = function() {
         return [
-            Game.time > this.memory.ttl,
-            workersCount === 0 && this.room.energyAvailable >= SPAWN_ENERGY_START,
+            Game.time > this.memory.ttl && this.room.energyAvailable >= SPAWN_ENERGY_START,
+            workersCount == 0 && this.room.energyAvailable >= SPAWN_ENERGY_START,
+            this.room.energyAvailable == this.room.energyCapacityAvailable
         ].some(x => x)
     }
     p.estimateMaxCreep = function () {
