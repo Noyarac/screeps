@@ -38,7 +38,7 @@ class SubMission{
         }
         const target = (this.type === "id") ? Game.getObjectById(this.target) : this.target;
         let energyComingSoon = Memory.rooms[this.room].missions
-        .filter(mission => mission.subMissionsList.some(subMission => subMission[0] === target.id && subMission[1] == this.actionString) && mission.creep != null)
+        .filter(mission => mission.subMissionsList.some(subMission => (subMission[0] === target.id) && (subMission[1] == this.actionString)) && (mission.creep != null))
         .reduce((total, mission) => {
             if (Game.creeps[mission.creep]) {
                 total += Game.creeps[mission.creep].getActiveBodyparts(CARRY) * 50;

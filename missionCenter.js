@@ -8,24 +8,38 @@ const missionCenter = {
                 Memory.rooms[roomName] = new Object;
                 Memory.rooms[roomName].missions = [];
             }
-            for (const mission of [
-                // [[new SubMission(FIND_STRUCTURES, "reserveController", {filterFunction: structure => structure.structureType === STRUCTURE_CONTROLLER && structure.owner == undefined})], 4, "conqueror"],
-                [[new SubMission(FIND_HOSTILE_CREEPS, "attack")], 4, "fighter"],
-                [[new SubMission(FIND_MY_CREEPS, "heal", {filterFunction: creep => creep.hitsMax - creep.hits > 0})], 4, "tower"],
-                [[new SubMission(FIND_HOSTILE_STRUCTURES, "attack", {filterFunction: struct => struct.structureType != STRUCTURE_KEEPER_LAIR})], 3, "fighter"],
-                [[new SubMission(FIND_RUINS, "withdraw", {filterFunction: ruin => !(ruin.store.getFreeCapacity() === 0)})], 3, "worker"],
-                [[new SubMission(FIND_TOMBSTONES, "withdraw", {filterFunction: tomb => tomb.store.getUsedCapacity() && tomb.pos.findInRange(FIND_HOSTILE_CREEPS, 5).length == 0})], 3, "worker"],
-                [[new SubMission(FIND_DROPPED_RESOURCES, "pickup", {filterFunction: ress => ress.amount > 50})], 3, "worker"],
-                [[new SubMission(FIND_MY_STRUCTURES, "transfer", {filterFunction: struct => struct.structureType === STRUCTURE_SPAWN && struct.store.getFreeCapacity(RESOURCE_ENERGY), resource: RESOURCE_ENERGY})], 3, "worker"],
-                [[new SubMission(FIND_MY_STRUCTURES, "transfer", {filterFunction: struct => [STRUCTURE_EXTENSION, STRUCTURE_TOWER].includes(struct.structureType) && struct.store.getFreeCapacity(RESOURCE_ENERGY), resource: RESOURCE_ENERGY})], 2, "worker"],
-                [[new SubMission(FIND_STRUCTURES, "transfer", {filterFunction: struct => struct.structureType === STRUCTURE_CONTAINER && struct.store.getFreeCapacity(RESOURCE_ENERGY), resource: RESOURCE_ENERGY})], 2, "worker"],
-                [[new SubMission(FIND_MY_CONSTRUCTION_SITES, "build", {resource: RESOURCE_ENERGY})], 1, "worker"],
-                [[new SubMission(FIND_MY_STRUCTURES, "transfer", {filterFunction: struct => struct.structureType === STRUCTURE_LINK && struct.memory.type === "sender" && struct.store.getFreeCapacity(RESOURCE_ENERGY) > 50, resource: RESOURCE_ENERGY})], 1, "linkOp"],
-                [[new SubMission(FIND_STRUCTURES, "repair", {filterFunction: struct => ([STRUCTURE_ROAD, STRUCTURE_CONTAINER].includes(struct.structureType)) && (struct.hitsMax - struct.hits > 0), resource: RESOURCE_ENERGY})], 1, "tower"],
-                [[new SubMission(FIND_MY_STRUCTURES, "repair", {filterFunction: struct => struct.hitsMax - struct.hits > 0, resource: RESOURCE_ENERGY})], 1, "worker"],
-                [[new SubMission(FIND_STRUCTURES, "upgradeController", {filterFunction: structure => structure.structureType === STRUCTURE_CONTROLLER && structure.my, resource: RESOURCE_ENERGY})], 0, "worker"]
+            for (const [mission, hash] of [
+                // [[[
+                //     new SubMission("659187f846d80fa3601ae462", "transfer", {ressource: RESOURCE_ENERGY}),
+                //     new SubMission("657a52104a8d812d2c5d1f71", "withdraw", {room:"W54N7", resource:RESOURCE_ENERGY}),
+                //     new SubMission(new RoomPosition(9,47,"W53N8"), "moveTo")
+                // ], 4, "stealer"], 997259388],
+                // [[[
+                //     new SubMission("659187f846d80fa3601ae462", "transfer", {ressource: RESOURCE_ENERGY}),
+                //     new SubMission("6584d6fbe2a2f9f1be57bfec", "withdraw", {room:"W54N7", resource:RESOURCE_ENERGY}),
+                //     new SubMission(new RoomPosition(48,25,"W54N7"), "moveTo")
+                // ], 4, "stealer"], -1495925381],
+
+                // [[[new SubMission("659187f846d80fa3601ae462", "transfer", {resource: RESOURCE_ENERGY})], 5, "stealer"], null],
+
+                [[[new SubMission(FIND_STRUCTURES, "upgradeController", {filterFunction: structure => (structure.structureType === STRUCTURE_CONTROLLER) && structure.my, resource: RESOURCE_ENERGY})], 0, "worker"], null],
+                [[[new SubMission(FIND_HOSTILE_CREEPS, "attack")], 4, "fighter"], null],
+                [[[new SubMission(FIND_MY_CREEPS, "heal", {filterFunction: creep => creep.hitsMax - creep.hits > 0})], 4, "tower"], null],
+                [[[new SubMission(FIND_HOSTILE_STRUCTURES, "attack", {filterFunction: struct => struct.structureType != STRUCTURE_KEEPER_LAIR})], 3, "fighter"], null],
+                [[[new SubMission(FIND_RUINS, "withdraw", {filterFunction: ruin => !(ruin.store.getFreeCapacity() === 0)})], 3, "worker"], null],
+                [[[new SubMission(FIND_TOMBSTONES, "withdraw", {filterFunction: tomb => tomb.store.getUsedCapacity() && (tomb.pos.findInRange(FIND_HOSTILE_CREEPS, 5).length == 0)})], 3, "worker"], null],
+                [[[new SubMission(FIND_DROPPED_RESOURCES, "pickup", {filterFunction: ress => ress.amount > 50})], 3, "worker"], null],
+                [[[new SubMission(FIND_MY_STRUCTURES, "transfer", {filterFunction: struct => (struct.structureType === STRUCTURE_SPAWN) && (struct.store.getFreeCapacity(RESOURCE_ENERGY) > 0), resource: RESOURCE_ENERGY})], 3, "worker"], null],
+                [[[new SubMission(FIND_MY_STRUCTURES, "transfer", {filterFunction: struct => [STRUCTURE_EXTENSION, STRUCTURE_TOWER].includes(struct.structureType) && (struct.store.getFreeCapacity(RESOURCE_ENERGY) > 0), resource: RESOURCE_ENERGY})], 2, "worker"], null],
+                [[[new SubMission(FIND_STRUCTURES, "transfer", {filterFunction: struct => (struct.structureType === STRUCTURE_CONTAINER) && struct.store.getFreeCapacity(RESOURCE_ENERGY), resource: RESOURCE_ENERGY})], 2, "worker"], null],
+                [[[new SubMission(FIND_MY_CONSTRUCTION_SITES, "build", {resource: RESOURCE_ENERGY})], 1, "worker"], null],
+                [[[new SubMission(FIND_MY_STRUCTURES, "transfer", {filterFunction: struct => (struct.structureType === STRUCTURE_LINK) && (struct.memory.type === "sender") && (struct.store.getFreeCapacity(RESOURCE_ENERGY) > 50), resource: RESOURCE_ENERGY})], 1, "linkOp"], null],
+                [[[new SubMission(FIND_STRUCTURES, "repair", {filterFunction: struct => [STRUCTURE_ROAD, STRUCTURE_CONTAINER].includes(struct.structureType) && (struct.hitsMax - struct.hits > 0), resource: RESOURCE_ENERGY})], 1, "tower"], null],
+                [[[new SubMission(FIND_MY_STRUCTURES, "repair", {filterFunction: struct => struct.hitsMax - struct.hits > 0, resource: RESOURCE_ENERGY})], 1, "worker"], null]
             ]) {
-                this._createMission(roomName, ...mission);
+                if ((hash == null) || !Memory.rooms[roomName].missions.some(mission => mission.name == hash)) {
+                    this._createMission(roomName, ...mission);
+                }
             }
             Memory.rooms[roomName].missions = Memory.rooms[roomName].missions.sort((a, b) => b.priority - a.priority);
         }
@@ -54,15 +68,15 @@ const missionCenter = {
             }
             for (let target of thisFloorTargets) {
                 let newSubMission = new SubMission(target, originalListOfSubMissions[index].actionString, {resource: originalListOfSubMissions[index].resource, room: originalListOfSubMissions[index].room});
-                if (newSubMission.isStillRelevant()) {
+                if (!Object.keys(Game.rooms).includes(newSubMission.room) || newSubMission.isStillRelevant()) {
                     const newListInProgress = listInProgress.map(x => x);
                     newListInProgress.push(newSubMission);
-                    listOfNewListOfSubMissions = this._scanAllSubMissions(originalListOfSubMissions, roomName, index + 1, newListInProgress);
+                    listOfNewListOfSubMissions = this._scanAllSubMissions(originalListOfSubMissions, roomName, index + 1, newListInProgress, listOfNewListOfSubMissions);
                 }
             }
             return listOfNewListOfSubMissions;
         }catch(err){
-            console.log("missionCenter _scanAllSubMissions " + err);
+            console.log("missionCenter _scanAllSubMissions " + err, index);
         }
     },
     getHash(s) {
@@ -72,9 +86,8 @@ const missionCenter = {
         }, 0);
     },
     _createMission: function(roomName, listOfSubMissions, priority, creepType) {
-        if (priority == 9) debugger;
+        if (listOfSubMissions.length == 2) debugger;
         try{
-            Memory.rooms[roomName] = Memory.rooms[roomName] || {missions: []};
             const listOfLists = this._scanAllSubMissions(listOfSubMissions, roomName);
             for (const list of listOfLists) {
                 let encodedSubMissions = [];
@@ -100,7 +113,8 @@ const missionCenter = {
                 }
                 try{
                     const hash = this.getHash(name);
-                    if (!Memory.rooms[roomName].missions.some(mission => mission.name == hash && mission.creep === undefined)) {
+                    if (!Memory.rooms[roomName].missions.filter(mission => (mission.name == hash) && (mission.creep == undefined)).length == 0) {
+                        // if (encodedSubMissions[0][1] == "upgradeController") console.log("bordel");
                         Memory.rooms[roomName].missions.push({name: hash, room: roomName, priority: priority, type: creepType, subMissionsList: encodedSubMissions});
                     }
                 }catch(err){

@@ -10,10 +10,14 @@ const missionCenter = require("./missionCenter");
 
 module.exports.loop = function () {
     try{
-        if (!Memory.missionCreated) {
-            missionCenter._createMission("sim", [ new SubMission("b91a711437d94b46776f8898", "attack"), new SubMission(new RoomPosition(7, 38, "sim"), "moveTo")], 9, "fighter");
-            Memory.missionCreated = true;
-        }
+        // if (!Memory.missionCreated) {
+        //     missionCenter._createMission("W53N7", [
+        //         new SubMission("659187f846d80fa3601ae462", "transfer", {ressource: RESOURCE_ENERGY}),
+        //         new SubMission("6584d6fbe2a2f9f1be57bfec", "withdraw", {room:"W54N7", resource:RESOURCE_ENERGY}),
+        //         new SubMission(new RoomPosition(35,27,"W54N7"), "moveTo")
+        //     ], 7, "worker");
+        //     Memory.missionCreated = true;
+        // }
         memoryManagement.clean();
     }catch(err){console.log("memoryManagement clean "+err)}
     try{

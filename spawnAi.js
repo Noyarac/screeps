@@ -19,20 +19,32 @@ const spawnAi = function() {
                         ...new Array(workQuantity).fill(WORK), 
                         ...new Array(carryQuantity).fill(CARRY), 
                         ...new Array(moveQuantity).fill(MOVE)
-                    ], this.room.name + Game.time.toString(), {memory: {type: "worker"}});
+                    ], this.room.name + Game.time.toString(), {memory: {type: "worker", home: this.id}});
                     if (status === OK ) {
                         this.memory.ttl = Game.time + spawnDelay;
                     } else {
                         console.log(`Error spawning worker creep[${workQuantity} * WORK, ${carryQuantity} * CARRY, ${moveQuantity} * MOVE]: ${status}`)
                     }
                 }
+                // if (this._countCreeps("stealer") < 1) {
+                //     const status = this.spawnCreep([
+                //         ...new Array(8).fill(CARRY), 
+                //         ...new Array(8).fill(MOVE)
+                //     ], this.room.name + Game.time.toString(), {memory: {type: "stealer", home: this.id}});
+                //     if (status === OK ) {
+                //         this.memory.ttl = Game.time + spawnDelay;
+                //     } else {
+                //         console.log(`Error spawning stealer creep: ${status}`)
+                //     }
+
+                // }
                 const targetedLinkOpQuantity = this.room.find(FIND_MY_STRUCTURES).filter(struct => struct.structureType === STRUCTURE_LINK && struct.memory.type === "sender").length;
                 if (this._countCreeps("linkOp") < targetedLinkOpQuantity && this.room.energyAvailable >= (BODYPART_COST[WORK] * 3 + BODYPART_COST[CARRY] * 1 + BODYPART_COST[MOVE] * 2)) {
                     let status = this.spawnCreep([
                         ...new Array(3).fill(WORK), 
                         ...new Array(1).fill(CARRY), 
                         ...new Array(2).fill(MOVE)
-                    ], this.room.name + Game.time.toString(), {memory: {type: "linkOp"}});
+                    ], this.room.name + Game.time.toString(), {memory: {type: "linkOp", home: this.id}});
                     if (status === OK ) {
                         this.memory.ttl = Game.time + spawnDelay;
                     } else {
@@ -44,7 +56,7 @@ const spawnAi = function() {
                             ...new Array(8).fill(TOUGH),
                             ...new Array(8).fill(MOVE),
                             ...new Array(4).fill(ATTACK) 
-                        ], this.room.name + Game.time.toString(), {memory: {type: "fighter"}});
+                        ], this.room.name + Game.time.toString(), {memory: {type: "fighter", home: this.id}});
                     if (status === OK ) {
                         this.memory.ttl = Game.time + spawnDelay;
                     } else {
@@ -69,7 +81,7 @@ const spawnAi = function() {
         }, 0)*1.5);
     }
     p._countCreeps = function(type = undefined) {
-        let roomCreeps = _.filter(Game.creeps, creep => creep.room.name === this.room.name);
+        let roomCreeps = _.filter(Game.creeps, creep => creep.memory.home === this.id);
         if (type) {
             roomCreeps = _.filter(roomCreeps, creep => creep.memory.type === type);
         }
