@@ -58,7 +58,7 @@ class SubMission{
 }
 Object.defineProperty(SubMission, "hash", {
     get: function() {
-        this._hash = this._hash || (str(this.target) + this.actionString + this.room + str(Game.time)).split("").reduce(function(a, b) {
+        this._hash = this._hash || (this.target.toString() + this.actionString + this.room + Game.time.toString()).split("").reduce(function(a, b) {
           a = ((a << 5) - a) + b.charCodeAt(0);
           return a & a;
         }, 0);
