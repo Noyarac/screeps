@@ -113,8 +113,7 @@ const missionCenter = {
                 }
                 try{
                     const hash = this.getHash(name);
-                    if (!Memory.rooms[roomName].missions.filter(mission => (mission.name == hash) && (mission.creep == undefined)).length == 0) {
-                        // if (encodedSubMissions[0][1] == "upgradeController") console.log("bordel");
+                    if (!(Memory.rooms[roomName].missions.filter(mission => mission.name == hash && mission.creep == undefined).length == 0)) {
                         Memory.rooms[roomName].missions.push({name: hash, room: roomName, priority: priority, type: creepType, subMissionsList: encodedSubMissions});
                     }
                 }catch(err){
