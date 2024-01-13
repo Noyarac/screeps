@@ -1,11 +1,12 @@
 const towerAi = function() {
-    let p = StructureTower.prototype;
+    const p = StructureTower.prototype;
     p.reactToTick = function() {
-        this.memory ||= {id: this.id};
+        this.memory ||= new Object;
+        this.memory.id ||= this.id;
         if (this._checkFinishMission()) {
             this._finishMission();
         }
-        if (Memory.towers[this.id].mission === undefined && this.store.getUsedCapacity(RESOURCE_ENERGY) >= 10) {
+        if (this.memory.mission == undefined && this.store.getUsedCapacity(RESOURCE_ENERGY) >= 10) {
             this._getMission();
         }
         if (Memory.towers[this.id].mission != undefined && Memory.towers[this.id].subMission != undefined) {
@@ -48,6 +49,9 @@ const towerAi = function() {
     Object.defineProperty(p, "memory", {
         get: function() {
             return Memory.towers[this.id];
+        },
+        set: function(value) {
+            Memory.towers[this.id] = value;
         }
     })
 };
