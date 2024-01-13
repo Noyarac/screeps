@@ -3,7 +3,7 @@ const spawnAi = function() {
     p.reactToTick = function() {
         try{
             const workersCount = this._countCreeps("worker");
-            if ((Game.time > this.memory.ttl && this.room.energyAvailable >= 300) || (workersCount === 0 && this.room.energyAvailable >= 300) || (this.room.energyAvailable == this.room.energyCapacityAvailable)) {
+            if (this._isAllowedToSpawn()) {
                 const CREEP_LIFETIME = 1500;
                 const BUFFER = 100 ;
                 const spawnDelay = ~~((CREEP_LIFETIME - BUFFER) / (this._countCreeps() + 1));
@@ -67,6 +67,13 @@ const spawnAi = function() {
         }catch(err){
             console.log("spawnAi reactToTick " + err);
         }
+    }
+    p._isAllowedToSpawn = function() {
+        return [
+            Game.time > this.memory.ttl && this.room.energyAvailable >= SPAWN_ENERGY_START,
+            this._countCreeps("worker") == 0 && this.room.energyAvailable >= SPAWN_ENERGY_START,
+            this.room.energyAvailable == this.room.energyCapacityAvailable
+        ].some(x => x)
     }
     p.estimateMaxCreep = function () {
         return Math.ceil(this.room.find(FIND_SOURCES_ACTIVE).reduce((results, source) => {
