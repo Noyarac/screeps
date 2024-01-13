@@ -59,7 +59,7 @@ const spawnAi = function() {
     p._isAllowedToSpawn = function() {
         return [
             Game.time > this.memory.ttl && this.room.energyAvailable >= SPAWN_ENERGY_START,
-            workersCount == 0 && this.room.energyAvailable >= SPAWN_ENERGY_START,
+            this._countCreeps("worker") == 0 && this.room.energyAvailable >= SPAWN_ENERGY_START,
             this.room.energyAvailable == this.room.energyCapacityAvailable
         ].some(x => x)
     }
