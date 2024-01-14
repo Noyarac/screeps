@@ -8,9 +8,8 @@ const mem = {
             for (const name of ["towers", "links"]) {
                 Memory[name] ||= new Object;
                 }
-            for (const roomName in Game.rooms) {
-                Memory.rooms[roomName] ||= new Object;
-                Memory.rooms[roomName].missions ||= new Array;
+            for (const room of Object.values(Game.rooms)) {
+                room.memory;
             }
         } catch(err) {
             console.log("memoryManagement initialize:" + err);

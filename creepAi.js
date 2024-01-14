@@ -87,7 +87,7 @@ const creepAi = function() {
     p._getMission = function() {
         try{
             debugger;
-            for (let mission of Memory.rooms[this.room.name].missions
+            for (let mission of this.room.missions
                 .filter(m => 
                     m.creep == undefined &&
                     m.type == this.memory.type &&
@@ -135,7 +135,7 @@ const creepAi = function() {
             this.memory.subMission = undefined;
             if (this.memory.mission) {
                 if (this.memory.mission.subMissionsList.length == 0) {
-                    Memory.rooms[this.memory.mission.room].missions = Memory.rooms[this.memory.mission.room].missions.filter(mission => !(mission.creep === this.name), this);
+                    Game.rooms[this.memory.mission.room].missions = Game.rooms[this.memory.mission.room].missions.filter(mission => !(mission.creep === this.name), this);
                     this.memory.mission = undefined
                 } else {
                     this.memory.subMission = this.memory.mission.subMissionsList.pop();

@@ -4,10 +4,6 @@ const SubMission = require("./SubMission");
 const missionCenter = {
     updateList: function(roomName) {
         try {
-            if (Memory.rooms[roomName] == undefined) {
-                Memory.rooms[roomName] = new Object;
-                Memory.rooms[roomName].missions = [];
-            }
             for (const [mission, hash] of [
                 // [[[
                 //     new SubMission("659187f846d80fa3601ae462", "transfer", {ressource: RESOURCE_ENERGY}),
@@ -37,11 +33,11 @@ const missionCenter = {
                 [[[new SubMission(FIND_STRUCTURES, "repair", {filterFunction: struct => [STRUCTURE_ROAD, STRUCTURE_CONTAINER].includes(struct.structureType) && (struct.hitsMax - struct.hits > 0), resource: RESOURCE_ENERGY})], 1, "tower"], null],
                 [[[new SubMission(FIND_MY_STRUCTURES, "repair", {filterFunction: struct => struct.hitsMax - struct.hits > 0, resource: RESOURCE_ENERGY})], 1, "worker"], null]
             ]) {
-                if ((hash == null) || !Memory.rooms[roomName].missions.some(mission => mission.name == hash)) {
+                if ((hash == null) || !Game.rooms[roomName].missions.some(mission => mission.name == hash)) {
                     this._createMission(roomName, ...mission);
                 }
             }
-            Memory.rooms[roomName].missions = Memory.rooms[roomName].missions.sort((a, b) => b.priority - a.priority);
+            Game.rooms[roomName].missions = Game.rooms[roomName].missions.sort((a, b) => b.priority - a.priority);
         }
         catch(err) {
             console.log("Error missionCenter " + err)
@@ -118,8 +114,8 @@ const missionCenter = {
                 }
                 try{
                     const hash = this.getHash(name);
-                    if (Memory.rooms[roomName].missions.filter(mission => mission.name == hash && mission.creep == undefined).length == 0) {
-                        Memory.rooms[roomName].missions.push({name: hash, room: roomName, priority: priority, type: creepType, subMissionsList: encodedSubMissions});
+                    if (Game.rooms[roomName].missions.filter(mission => mission.name == hash && mission.creep == undefined).length == 0) {
+                        Game.rooms[roomName].missions.push({name: hash, room: roomName, priority: priority, type: creepType, subMissionsList: encodedSubMissions});
                     }
                 }catch(err){
                     console.log(err)
