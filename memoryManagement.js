@@ -31,34 +31,27 @@ const mem = {
     },
     clean: function(force = false) {
         try{
-            const roomNames = Object.keys(Memory.rooms);
-            for (const roomName of roomNames) {
-                if (Game.rooms[roomName] == undefined) {
-                    Memory.rooms[roomName] = undefined;
-                }
-            }
             if ((Game.time % this.cleanFrequency == 0) || force) {
-                const oldCreepNames = Object.keys(Memory.creeps).map(x=>x);
+                const oldCreepNames = Object.keys(Memory.creeps);
                 for (const creepName of oldCreepNames) {
                     if (Game.creeps[creepName] == undefined) delete Memory.creeps[creepName];
                 }
                 for (const type of ["towers", "links"]) {
-                    const oldStructNames = Object.keys(Memory[type]).map(x=>x);
+                    const oldStructNames = Object.keys(Memory[type]);
                     for (const structureId in oldStructNames) {
                         if (Game.getObjectById(structureId) == null) delete Memory[type][structureId];
                     }
                 }
-                const oldRoomNames = Object.keys(Game.rooms).map(x=>x);
-                for (const roomName in oldRoomNames) {
+                const roomNames = Object.keys(Memory.rooms);
+                const creepNameList = Object.keys(Memory.creeps);
+                const towerNameList = Object.keys(Memory.towers);
+                for (const roomName in roomNames) {
                     if (Game.rooms[roomName] == undefined) {
                         Memory.rooms[roomName] = undefined;
                         continue;
                     }
-                    const creepNameList = Object.keys(Game.creeps);
                     Memory.rooms[roomName].missions = Memory.rooms[roomName].missions.filter(mission =>
-                        creepNameList.includes(mission.creep) ||
-                        _.filter(Game.structures, {structureType: STRUCTURE_TOWER}).map(tower => tower.id).includes(mission.creep) ||
-                        mission.creep === undefined)
+                        [...creepNameList, ...towerNameList, undefined].includes(mission.creep));
                 }
             }    
         }catch(err){

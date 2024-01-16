@@ -34,7 +34,7 @@ const missionCenter = {
                 [[[new SubMission(FIND_STRUCTURES, "transfer", {filterFunction: struct => (struct.structureType === STRUCTURE_CONTAINER) && struct.store.getFreeCapacity(RESOURCE_ENERGY), resource: RESOURCE_ENERGY})], 2, "worker"], null],
                 [[[new SubMission(FIND_MY_CONSTRUCTION_SITES, "build", {resource: RESOURCE_ENERGY})], 1, "worker"], null],
                 [[[new SubMission(FIND_MY_STRUCTURES, "transfer", {filterFunction: struct => (struct.structureType === STRUCTURE_LINK) && (struct.memory.type === "sender") && (struct.store.getFreeCapacity(RESOURCE_ENERGY) > 50), resource: RESOURCE_ENERGY})], 1, "linkOp"], null],
-                [[[new SubMission(FIND_STRUCTURES, "repair", {filterFunction: struct => [STRUCTURE_ROAD, STRUCTURE_CONTAINER].includes(struct.structureType) && (struct.hitsMax - struct.hits > 0), resource: RESOURCE_ENERGY})], 1, "tower"], null],
+                [[[new SubMission(FIND_STRUCTURES, "repair", {filterFunction: struct => [STRUCTURE_ROAD, STRUCTURE_CONTAINER].includes(struct.structureType) && (struct.hitsMax - struct.hits > 0), resource: RESOURCE_ENERGY})], 1, "worker"], null],
                 [[[new SubMission(FIND_MY_STRUCTURES, "repair", {filterFunction: struct => struct.hitsMax - struct.hits > 0, resource: RESOURCE_ENERGY})], 1, "worker"], null]
             ]) {
                 if ((hash == null) || !Memory.rooms[roomName].missions.some(mission => mission.name == hash)) {
