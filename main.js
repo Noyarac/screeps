@@ -8,6 +8,9 @@ require("./towerAi")();
 require("./creepAi")();
 require("./spawnAi")();
 const missionCenter = require("./missionCenter");
+// TO CHANGE VERSION
+// Memory.keepMissions = false;
+// memoryManagement.clean(true);
 
 module.exports.loop = function () {
     memoryManagement.clean();
