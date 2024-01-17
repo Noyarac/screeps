@@ -86,7 +86,7 @@ const creepAi = function() {
             for (let mission of this.room.missions
                 .filter(m => 
                     m.creep == undefined &&
-                    m.type == this.memory.type &&
+                    (new Function("creep", m.type))(this) &&
                     m.subMissionsList.length > 0 &&
                     !((this.store.getFreeCapacity() / this.store.getCapacity() < 0.3) && ["harverst", "pickup", "withdraw"].includes(m.subMissionsList[m.subMissionsList.length - 1][1]))
                 , this)) {
