@@ -51,8 +51,8 @@ const towerAi = function() {
     }
     Object.defineProperty(p, "memory", {
         get: function() {
-            Memory.towers[this.id] ||= new Object;
-            Memory.towers[this.id].id ||= this.id;
+            Memory.towers[this.id] = Memory.towers[this.id] || new Object;
+            Memory.towers[this.id].id = Memory.towers[this.id].id || this.id;
             return Memory.towers[this.id];
         },
         set: function(value) {

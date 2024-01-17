@@ -148,7 +148,7 @@ const creepAi = function() {
     }
     Object.defineProperty(p, "mission", {
         get: function() {
-            this._mission ||= {
+            this._mission = this._mission || {
                 thisCreep: this,
             };
             Object.defineProperty(this._mission, "isOver", {

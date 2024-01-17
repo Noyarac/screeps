@@ -3,10 +3,10 @@ const mem = {
     initialize: function() {
         try{
             for (const spawn of Object.values(Game.spawns)) {
-                spawn.memory.ttl ||= 0;
+                spawn.memory.ttl = spawn.memory.ttl || 0;
             }
             for (const name of ["towers", "links"]) {
-                Memory[name] ||= new Object;
+                Memory[name] = Memory[name] || new Object;
                 }
             for (const room of Object.values(Game.rooms)) {
                 room.memory;
