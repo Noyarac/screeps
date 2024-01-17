@@ -1,48 +1,48 @@
 const creepAi = function() {
     let p = Creep.prototype;
     p.reactToTick = function() {
-        if (this.spawning) { 
-            return;
-        }
-        if (this.mission.hasSubMission && this.mission.isOver) {
-            this._finishSubMission();
-        }
-        if (!this.memory.subMission) {
-            if (!this.memory.mission) {
-                if ((this.store.getCapacity() !== null) && ((this.store.getUsedCapacity(RESOURCE_ENERGY) + this.store.getFreeCapacity()) != this.store.getCapacity())) {
-                    this.memory.subMission = [this.room.find(FIND_MY_STRUCTURES).filter(struct => struct.structureType == STRUCTURE_STORAGE)[0].id, "transfer", this.room.name];
-                } else {
-                    this._getMission();
-                }
+        try{
+            if (this.spawning) { 
+                return;
             }
-            if (this.memory.mission != undefined) {
-                if (this.memory.mission.subMissionsList.length > 0) {
-                    try {
+            if (this.mission.hasSubMission && this.mission.isOver) {
+                this._finishSubMission();
+            }
+            if (!this.memory.subMission) {
+                if (!this.memory.mission) {
+                    if ((this.store.getCapacity() !== null) && ((this.store.getUsedCapacity(RESOURCE_ENERGY) + this.store.getFreeCapacity()) != this.store.getCapacity())) {
+                        this.memory.subMission = [this.room.find(FIND_MY_STRUCTURES).filter(struct => struct.structureType == STRUCTURE_STORAGE)[0].id, "transfer", this.room.name];
+                    } else {
+                        this._getMission();
+                    }
+                }
+                if (this.memory.mission != undefined) {
+                    if (this.memory.mission.subMissionsList.length > 0) {
                         if (['transfer', 'repair', 'build', 'upgradeController'].includes(this.memory.mission.subMissionsList[this.memory.mission.subMissionsList.length - 1][1]) && (this.store.getUsedCapacity(RESOURCE_ENERGY) === 0) && !this.memory.subMission) {
                             let sourceSpot = this._findSourceSpot();
                             if (sourceSpot) {
                                 this.memory.mission.subMissionsList.push([sourceSpot, (Game.getObjectById(sourceSpot) instanceof Source ) ? 'harvest' : "withdraw", this.room.name, RESOURCE_ENERGY]);
                             }
                         }
-                    }catch(err){
-                        console.log(this.memory.mission.subMissionsList);
-                    }
-                    this.memory.subMission = this.memory.mission.subMissionsList.pop();
-                    if ((this.memory.subMission[1] === 'attack') && (this.getActiveBodyparts(ATTACK) === 0) && (this.getActiveBodyparts(RANGED_ATTACK) > 0)) {
-                        this.memory.subMission[1] = 'rangedAttack';
+                        this.memory.subMission = this.memory.mission.subMissionsList.pop();
+                        if ((this.memory.subMission[1] === 'attack') && (this.getActiveBodyparts(ATTACK) === 0) && (this.getActiveBodyparts(RANGED_ATTACK) > 0)) {
+                            this.memory.subMission[1] = 'rangedAttack';
+                        }
                     }
                 }
+                 else {
+                    if (this.memory.type != "fighter")this.say("Heu...")
+                    // this.memory.subMission = [this.memory.home, "moveTo", undefined, undefined];
+                }
             }
-             else {
-                if (this.memory.type != "fighter")this.say("Heu...")
-                // this.memory.subMission = [this.memory.home, "moveTo", undefined, undefined];
+            if ((this.memory.mission != undefined) && (this.memory.subMission == undefined) && (this.memory.mission.subMissionsList.length == 0)) {
+                this._finishSubMission();
             }
-        }
-        if ((this.memory.mission != undefined) && (this.memory.subMission == undefined) && (this.memory.mission.subMissionsList.length == 0)) {
-            this._finishSubMission();
-        }
-        if (this.memory.subMission) {
-            this._autoAction()
+            if (this.memory.subMission) {
+                this._autoAction()
+            }
+        } catch(err) {
+            console.log("creepAi, reactToTick: ", err);
         }
     }
     p._autoAction = function() {

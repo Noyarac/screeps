@@ -1,16 +1,20 @@
 const towerAi = function() {
     const p = StructureTower.prototype;
     p.reactToTick = function() {
-        if (this._checkFinishMission()) {
-            this._finishMission();
-        }
-        if (!this.memory.mission && this.store.getUsedCapacity(RESOURCE_ENERGY) >= 10) {
-            this._getMission();
-        }
-        if (this.memory.mission && this.memory.subMission) {
-            const target = Game.getObjectById(this.memory.subMission[0]);
-            const actionString = this.memory.subMission[1];
-            this[actionString](target);
+        try {
+            if (this._checkFinishMission()) {
+                this._finishMission();
+            }
+            if (!this.memory.mission && this.store.getUsedCapacity(RESOURCE_ENERGY) >= 10) {
+                this._getMission();
+            }
+            if (this.memory.mission && this.memory.subMission) {
+                const target = Game.getObjectById(this.memory.subMission[0]);
+                const actionString = this.memory.subMission[1];
+                this[actionString](target);
+            }
+        } catch(err) {
+            console.log("towerAi, reactToTick: ", err);
         }
     }
     p._getMission = function() {
