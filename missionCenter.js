@@ -2,6 +2,19 @@ const Mission = require("./Mission");
 const SubMission = require("./SubMission");
 
 const missionCenter = {
+    alertHostileCreep: function(roomName) {
+        const hostileCreeps = Game.rooms[roomName].find(FIND_HOSTILE_CREEPS).filter(creep => creep.getActiveBodyparts(ATTACK) > 0) || (creep.getActiveBodyparts(RANGED_ATTACK) > 0);
+        for (const hostileCreep of hostileCreeps) {
+            const myDefenselessCreeps = hostileCreep.pos.findInRange(FIND_MY_CREEPS, 10).filter(myCreep => !myCreep.memory.scared && myCreep.getActiveBodyparts(ATTACK) == 0 && myCreep.getActiveBodyparts(RANGED_ATTACK) == 0);
+            for (let myCreep of myDefenselessCreeps) {
+                debugger;
+                myCreep.say("😨");
+                myCreep.memory.scared = true;
+                myCreep.memory.mission.subMissionsList = [];
+                myCreep.mission.subMission = [myCreep.memory.home, "moveTo", Game.getObjectById(myCreep.memory.home).pos.roomName, null];
+            }
+        }
+    },
     updateList: function(roomName) {
         try {
             for (const [mission, hash] of [
@@ -18,12 +31,12 @@ const missionCenter = {
 
                 // [[[new SubMission("659187f846d80fa3601ae462", "transfer", {resource: RESOURCE_ENERGY})], 5, "stealer"], null],
 
-                [[[new SubMission(FIND_STRUCTURES, "dismantle", {filterFunction: structure => (structure.structureType === STRUCTURE_ROAD) && structure.id == "658e9674544a194814fb0ecb"})], 6, 'return creep.memory.type == "worker"'], -2000758226],
+                [[[new SubMission(FIND_STRUCTURES, "dismantle", {filterFunction: structure => (structure.structureType === STRUCTURE_ROAD) && structure.id == "65906e28b1bc11b5f2858023"})], 6, 'return creep.memory.type == "worker"'], -927388274],
                 [[[new SubMission(FIND_STRUCTURES, "upgradeController", {filterFunction: structure => (structure.structureType === STRUCTURE_CONTROLLER) && structure.my, resource: RESOURCE_ENERGY})], 0, 'return ["worker", "linkOp"].includes(creep.memory.type)'], null],
                 [[[new SubMission(FIND_HOSTILE_CREEPS, "attack")], 4, 'return creep.memory.type == "fighter"'], null],
-                [[[new SubMission(FIND_MY_CREEPS, "heal", {filterFunction: creep => creep.hitsMax - creep.hits > 0})], 4, 'return creep instanceof StructureTower'], null],
+                [[[new SubMission(FIND_MY_CREEPS, "heal", {filterFunction: creep => creep.hitsMax - creep.hits > 0})], 4, 'return creep.structureType == STRUCTURE_TOWER'], null],
                 [[[new SubMission(FIND_HOSTILE_STRUCTURES, "attack", {filterFunction: struct => struct.structureType != STRUCTURE_KEEPER_LAIR})], 3, 'return creep.memory.type == "fighter"'], null],
-                [[[new SubMission(FIND_RUINS, "withdraw", {filterFunction: ruin => !(ruin.store.getFreeCapacity() === 0)})], 3, 'return creep.memory.type == "worker"'], null],
+                [[[new SubMission(FIND_RUINS, "withdraw", {filterFunction: ruin => ruin.store.getUsedCapacity()})], 3, 'return creep.memory.type == "worker"'], null],
                 [[[new SubMission(FIND_TOMBSTONES, "withdraw", {filterFunction: tomb => tomb.store.getUsedCapacity() && (tomb.pos.findInRange(FIND_HOSTILE_CREEPS, 5).length == 0)})], 3, 'return creep.memory.type == "worker"'], null],
                 [[[new SubMission(FIND_DROPPED_RESOURCES, "pickup", {filterFunction: ress => ress.amount > 50})], 3, 'return ["worker", "linkOp"].includes(creep.memory.type)'], null],
                 [[[new SubMission(FIND_MY_STRUCTURES, "transfer", {filterFunction: struct => (struct.structureType === STRUCTURE_SPAWN) && (struct.store.getFreeCapacity(RESOURCE_ENERGY) > 0), resource: RESOURCE_ENERGY})], 3, 'return creep.memory.type == "worker"'], null],

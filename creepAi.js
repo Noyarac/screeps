@@ -16,16 +16,16 @@ const creepAi = function() {
                         this._getMission();
                     }
                 }
-                if (this.memory.mission != undefined) {
+                if (this.memory.mission) {
                     if (this.memory.mission.subMissionsList.length > 0) {
-                        if (['transfer', 'repair', 'build', 'upgradeController'].includes(this.memory.mission.subMissionsList[this.memory.mission.subMissionsList.length - 1][1]) && (this.store.getUsedCapacity(RESOURCE_ENERGY) === 0) && !this.mission.hasSubMission) {
+                        if (['transfer', 'repair', 'build', 'upgradeController'].includes(this.memory.mission.subMissionsList[this.memory.mission.subMissionsList.length - 1][1]) && (this.store.getUsedCapacity(RESOURCE_ENERGY) === 0)) {
                             let sourceSpot = this._findSourceSpot();
                             if (sourceSpot) {
                                 this.memory.mission.subMissionsList.push([sourceSpot, (Game.getObjectById(sourceSpot) instanceof Source ) ? 'harvest' : "withdraw", this.room.name, RESOURCE_ENERGY]);
                             }
                         }
                         this.mission.subMission = this.memory.mission.subMissionsList.pop();
-                        if ((this.mission.subMission[1] === 'attack') && (this.getActiveBodyparts(ATTACK) === 0) && (this.getActiveBodyparts(RANGED_ATTACK) > 0)) {
+                        if (this.mission.subMission[1] === 'attack' && this.getActiveBodyparts(ATTACK) === 0 && this.getActiveBodyparts(RANGED_ATTACK) > 0) {
                             this.mission.subMission[1] = 'rangedAttack';
                         }
                     }
@@ -33,9 +33,6 @@ const creepAi = function() {
                 //  else {
                     // this.mission.subMission = [this.memory.home, "moveTo", undefined, undefined];
                 // }
-            }
-            if ((this.memory.mission != undefined) && (!this.mission.hasSubMission) && (this.memory.mission.subMissionsList.length == 0)) {
-                this._finishSubMission();
             }
             if (this.mission.hasSubMission) {
                 this._autoAction()
@@ -48,7 +45,7 @@ const creepAi = function() {
         try {
             const actionString = this.memory.subMission[1];
             const target = (this.memory.subMission[0] instanceof Array) ? new RoomPosition(...this.memory.subMission[0]) : Game.getObjectById(this.memory.subMission[0]);  
-            if ((actionString === "withdraw") && (target instanceof Tombstone)) {
+            if (actionString === "withdraw" && target instanceof Tombstone) {
                 for (const resourceType of RESOURCES_ALL) {
                     if (target.store.getUsedCapacity(resourceType) > 0) {
                         this.memory.subMission[3] = resourceType;
@@ -56,7 +53,7 @@ const creepAi = function() {
                     }
                 }
             }
-            if ((actionString === "transfer") && (target.structureType === STRUCTURE_STORAGE)) {
+            if (actionString === "transfer" && target.structureType === STRUCTURE_STORAGE) {
                 for (const resourceType of RESOURCES_ALL) {
                     if (this.store.getUsedCapacity(resourceType)) {
                         this.memory.subMission[3] = resourceType;
@@ -65,15 +62,7 @@ const creepAi = function() {
                 }
             }
             if (this[actionString](target, (target instanceof RoomPosition) ? undefined : this.memory.subMission[3]) === ERR_NOT_IN_RANGE) {
-                const dangerousTarget = (target instanceof RoomPosition) ? target : target.pos;
-                if ((dangerousTarget.findInRange(FIND_HOSTILE_CREEPS, 5).some(creep => (creep.getActiveBodyparts(ATTACK) > 0) || (creep.getActiveBodyparts(RANGED_ATTACK) > 0))) && this.memory.type === "worker") {
-                    this.say("😨");
-                    this.memory.mission.creep = undefined;
-                    this.memory.mission = undefined;
-                    this.memory.subMission = undefined;
-                } else {
-                    this.moveTo(target, {reusePath: 4})
-                }
+                this.moveTo(target, {reusePath: 7})
             }
         }
         catch(err) {
@@ -95,21 +84,6 @@ const creepAi = function() {
             }
         }catch(err) {
             console.log("get mission", err);
-        }
-    }
-    p._finishSubMission = function() {
-        try{
-            this.memory.subMission = undefined;
-            if (this.memory.mission) {
-                if (this.memory.mission.subMissionsList.length == 0) {
-                    Game.rooms[this.memory.mission.room].missions = Game.rooms[this.memory.mission.room].missions.filter(mission => !(mission.creep === this.name), this);
-                    this.memory.mission = undefined
-                } else {
-                    this.memory.subMission = this.memory.mission.subMissionsList.pop();
-                }
-            }
-        }catch(err){
-            console.log("finish sub mission", err);
         }
     }
     p._findSourceSpot = function () {
@@ -151,6 +125,7 @@ const creepAi = function() {
                 thisCreep: this,
                 finishSubMission: function() {
                     try{
+                        this.thisCreep.memory.scared = undefined;
                         this.subMission = undefined;
                         if (this.thisCreep.memory.mission) {
                             if (this.thisCreep.memory.mission.subMissionsList.length == 0) {
@@ -169,27 +144,30 @@ const creepAi = function() {
                 configurable: true,
                 get: function() {
                     if (!this.hasSubMission) {
-                        return false
+                        return true
                     }
                     const actionString = this.subMission[1];
                     const target = (this.subMission[0] instanceof Array) ? new RoomPosition(...this.subMission[0]) : Game.getObjectById(this.subMission[0]);  
                     if (target === null) {
                         return true;
                     }
+                    const targetClass = target.constructor;
+                    const targetIsTombstone = targetClass === Tombstone;
+                    const targetIsContainer = targetClass === StructureContainer;
+                    const creepStoreIsFull = this.thisCreep.store.getFreeCapacity() === 0;
                     if (
-                        (this.thisCreep.store.getUsedCapacity(this.subMission[3]) == 0 && !(target instanceof Tombstone || target instanceof StructureContainer) && ['build', 'repair', 'transfer', 'upgradeController'].includes(actionString)) ||
-                        ((actionString === 'moveTo') && this.thisCreep.pos.isNearTo(target)) ||
-                        ((actionString === 'reserveController') && (target.owner != undefined)) ||
-                        ((actionString === 'harvest') && ((target.energy === 0) || (this.thisCreep.store.getFreeCapacity() === 0))) ||
-                        ((actionString === 'pickup') && ((target.amount === 0) || (this.thisCreep.store.getFreeCapacity() === 0))) ||
-                        ((actionString === 'dismantle') && (this.thisCreep.store.getFreeCapacity() === 0)) ||
-                        ((actionString === 'transfer') && (target instanceof StructureContainer) && ((target.store.getFreeCapacity() === 0) || (this.thisCreep.store.getUsedCapacity() === 0))) ||
-                        ((actionString === 'transfer') && !(target instanceof StructureContainer) && ((target.store.getFreeCapacity(this.subMission[3]) === 0) || (this.thisCreep.store.getUsedCapacity(RESOURCE_ENERGY) == 0))) ||
-                        ((actionString === 'repair') && (target.hits === target.hitsMax)) ||
-                        ((actionString === 'build') && (!(Object.values(Game.constructionSites).includes(target)))) ||
-                        (['rangedAttack', 'attack'].includes(actionString) && (target === null)) ||
-                        ((actionString === 'withdraw') && (target instanceof Tombstone) && ((target.store.getUsedCapacity() === 0) || (this.thisCreep.store.getFreeCapacity() === 0))) ||
-                        ((actionString === 'withdraw') && !(target instanceof Tombstone) && ((target.store.getUsedCapacity(this.subMission[3]) === 0) || (this.thisCreep.store.getFreeCapacity() === 0)))
+                        (this.thisCreep.store.getUsedCapacity(this.subMission[3]) == 0 && !(targetIsTombstone || targetIsContainer) && ['build', 'repair', 'transfer', 'upgradeController'].includes(actionString)) ||
+                        (actionString === 'harvest' && (target.energy === 0 || creepStoreIsFull)) ||
+                        (actionString === 'transfer' && !targetIsContainer && (target.store.getFreeCapacity(this.subMission[3]) === 0 || this.thisCreep.store.getUsedCapacity(RESOURCE_ENERGY) == 0)) ||
+                        (actionString === 'transfer' && targetIsContainer && (target.store.getFreeCapacity() === 0 || this.thisCreep.store.getUsedCapacity() === 0)) ||
+                        (actionString === 'withdraw' && !targetIsTombstone && (target.store.getUsedCapacity(this.subMission[3]) === 0 || creepStoreIsFull)) ||
+                        (actionString === 'withdraw' && targetIsTombstone && (target.store.getUsedCapacity() === 0 || creepStoreIsFull)) ||
+                        (actionString === 'pickup' && (target.amount === 0 || creepStoreIsFull)) ||
+                        (actionString === 'dismantle' && creepStoreIsFull) ||
+                        (actionString === 'repair' && target.hits === target.hitsMax) ||
+                        (actionString === 'build' && !Object.values(Game.constructionSites).includes(target)) ||
+                        (actionString === 'moveTo' && this.thisCreep.pos.isNearTo(target)) ||
+                        (actionString === 'reserveController' && target.owner != undefined)
                     ) {
                         return true;
                     }
