@@ -18,19 +18,20 @@ const missionCenter = {
 
                 // [[[new SubMission("659187f846d80fa3601ae462", "transfer", {resource: RESOURCE_ENERGY})], 5, "stealer"], null],
 
+                [[[new SubMission(FIND_STRUCTURES, "dismantle", {filterFunction: structure => (structure.structureType === STRUCTURE_ROAD) && structure.id == "6591f18618ca7509352a0d93"})], 6, 'return creep.memory.type == "worker"'], -1358901560],
                 [[[new SubMission(FIND_STRUCTURES, "upgradeController", {filterFunction: structure => (structure.structureType === STRUCTURE_CONTROLLER) && structure.my, resource: RESOURCE_ENERGY})], 0, 'return creep.memory.type == "worker"'], null],
                 [[[new SubMission(FIND_HOSTILE_CREEPS, "attack")], 4, 'return creep.memory.type == "fighter"'], null],
                 [[[new SubMission(FIND_MY_CREEPS, "heal", {filterFunction: creep => creep.hitsMax - creep.hits > 0})], 4, 'return creep instanceof StructureTower'], null],
                 [[[new SubMission(FIND_HOSTILE_STRUCTURES, "attack", {filterFunction: struct => struct.structureType != STRUCTURE_KEEPER_LAIR})], 3, 'return creep.memory.type == "fighter"'], null],
                 [[[new SubMission(FIND_RUINS, "withdraw", {filterFunction: ruin => !(ruin.store.getFreeCapacity() === 0)})], 3, 'return creep.memory.type == "worker"'], null],
                 [[[new SubMission(FIND_TOMBSTONES, "withdraw", {filterFunction: tomb => tomb.store.getUsedCapacity() && (tomb.pos.findInRange(FIND_HOSTILE_CREEPS, 5).length == 0)})], 3, 'return creep.memory.type == "worker"'], null],
-                [[[new SubMission(FIND_DROPPED_RESOURCES, "pickup", {filterFunction: ress => ress.amount > 50})], 3, 'return creep.memory.type == "worker"'], null],
+                [[[new SubMission(FIND_DROPPED_RESOURCES, "pickup", {filterFunction: ress => ress.amount > 50})], 3, 'return ["worker", "linkOp"].includes(creep.memory.type)'], null],
                 [[[new SubMission(FIND_MY_STRUCTURES, "transfer", {filterFunction: struct => (struct.structureType === STRUCTURE_SPAWN) && (struct.store.getFreeCapacity(RESOURCE_ENERGY) > 0), resource: RESOURCE_ENERGY})], 3, 'return creep.memory.type == "worker"'], null],
                 [[[new SubMission(FIND_MY_STRUCTURES, "transfer", {filterFunction: struct => [STRUCTURE_EXTENSION, STRUCTURE_TOWER].includes(struct.structureType) && (struct.store.getFreeCapacity(RESOURCE_ENERGY) > 0), resource: RESOURCE_ENERGY})], 2, 'return creep.memory.type == "worker"'], null],
                 [[[new SubMission(FIND_STRUCTURES, "transfer", {filterFunction: struct => (struct.structureType === STRUCTURE_CONTAINER) && struct.store.getFreeCapacity(RESOURCE_ENERGY), resource: RESOURCE_ENERGY})], 2, 'return creep.memory.type == "worker"'], null],
                 [[[new SubMission(FIND_MY_CONSTRUCTION_SITES, "build", {resource: RESOURCE_ENERGY})], 1, 'return creep.memory.type == "worker"'], null],
                 [[[new SubMission(FIND_MY_STRUCTURES, "transfer", {filterFunction: struct => (struct.structureType === STRUCTURE_LINK) && (struct.memory.type === "sender") && (struct.store.getFreeCapacity(RESOURCE_ENERGY) > 50), resource: RESOURCE_ENERGY})], 1, 'return creep.memory.type == "linkOp"'], null],
-                [[[new SubMission(FIND_STRUCTURES, "repair", {filterFunction: struct => [STRUCTURE_ROAD, STRUCTURE_CONTAINER].includes(struct.structureType) && (struct.hitsMax - struct.hits > 0), resource: RESOURCE_ENERGY})], 1, 'return creep.memory.type == "worker"'], null],
+                [[[new SubMission(FIND_STRUCTURES, "repair", {filterFunction: struct => [STRUCTURE_ROAD, STRUCTURE_CONTAINER].includes(struct.structureType) && (struct.hitsMax - struct.hits > 0) && struct.id != "6591f18618ca7509352a0d93", resource: RESOURCE_ENERGY})], 1, 'return creep.memory.type == "worker"'], null],
                 [[[new SubMission(FIND_MY_STRUCTURES, "repair", {filterFunction: struct => struct.hitsMax - struct.hits > 0, resource: RESOURCE_ENERGY})], 1, 'return creep.memory.type == "worker"'], null]
             ]) {
                 if ((hash == null) || !Game.rooms[roomName].missions.some(mission => mission.name == hash)) {

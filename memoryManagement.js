@@ -42,7 +42,7 @@ const mem = {
                 const roomNames = Object.keys(Memory.rooms);
                 const creepNameList = Object.keys(Memory.creeps);
                 const towerNameList = Object.keys(Memory.towers);
-                for (const roomName in roomNames) {
+                for (const roomName of roomNames) {
                     if (Game.rooms[roomName] == undefined) {
                         Memory.rooms[roomName] = undefined;
                         continue;

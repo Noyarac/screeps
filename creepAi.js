@@ -165,6 +165,7 @@ const creepAi = function() {
                         ((actionString === 'reserveController') && (target.owner != undefined)) ||
                         ((actionString === 'harvest') && ((target.energy === 0) || (this.thisCreep.store.getFreeCapacity() === 0))) ||
                         ((actionString === 'pickup') && ((target.amount === 0) || (this.thisCreep.store.getFreeCapacity() === 0))) ||
+                        ((actionString === 'dismantle') && (this.thisCreep.store.getFreeCapacity() === 0)) ||
                         ((actionString === 'transfer') && (target instanceof StructureContainer) && ((target.store.getFreeCapacity() === 0) || (this.thisCreep.store.getUsedCapacity() === 0))) ||
                         ((actionString === 'transfer') && !(target instanceof StructureContainer) && ((target.store.getFreeCapacity(this.thisCreep.memory.subMission[3]) === 0) || (this.thisCreep.store.getUsedCapacity(RESOURCE_ENERGY) == 0))) ||
                         ((actionString === 'repair') && (target.hits === target.hitsMax)) ||
