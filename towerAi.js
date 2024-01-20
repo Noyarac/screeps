@@ -57,7 +57,8 @@ const towerAi = function() {
         },
         set: function(value) {
             Memory.towers[this.id] = value;
-        }
+        },
+        configurable: true
     })
 };
 module.exports = towerAi;

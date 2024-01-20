@@ -1,5 +1,5 @@
 const mem = {
-    cleanFrequency: 500,
+    cleanFrequency: 50,
     initialize: function() {
         try{
             for (const spawn of Object.values(Game.spawns)) {
