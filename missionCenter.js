@@ -20,6 +20,15 @@ const missionCenter = {
             if (Game.time % 3) {
                 return;
             }
+            if (roomName == "W51N4") {
+                if (!Game.rooms[roomName].missions.some(mission => mission.name == -1032444514) && Game.getObjectById("5bbcaa509099fc012e63124f").energy == 0 && Game.getObjectById("5bbcaa509099fc012e63124e").energy == 0) {
+                    this._createMission(roomName, [
+                        new SubMission(new RoomPosition(29, 48, "W51N4"), "moveTo"),
+                        new SubMission("5bbcaa509099fc012e631251", "harvest", {room:"W51N3"}),
+                        new SubMission(new RoomPosition(29, 1, "W51N3"), "moveTo", {room:"W51N3"})
+                    ], 2, "return creep.ticksToLive > 400 && creep.memory.type == 'worker' && creep.store.getUsedCapacity() == 0");
+                }
+            }
             for (const [mission, hash] of [
                 // [[[
                 //     new SubMission("659187f846d80fa3601ae462", "transfer", {ressource: RESOURCE_ENERGY}),
@@ -48,7 +57,7 @@ const missionCenter = {
                 [[[new SubMission(FIND_STRUCTURES, "repair", {filterFunction: struct => [STRUCTURE_ROAD, STRUCTURE_CONTAINER].includes(struct.structureType) && (struct.hitsMax - struct.hits > 0), resource: RESOURCE_ENERGY})], 1, 'return creep.memory.type == "worker"'], null],
                 [[[new SubMission(FIND_MY_STRUCTURES, "repair", {filterFunction: struct => struct.hitsMax - struct.hits > 0, resource: RESOURCE_ENERGY})], 1, 'return creep.memory.type == "worker"'], null]
             ]) {
-                if ((hash == null) || !Game.rooms[roomName].missions.some(mission => mission.name == hash)) {
+                if (hash == null || !Game.rooms[roomName].missions.some(mission => mission.name == hash)) {
                     this._createMission(roomName, ...mission);
                 }
             }

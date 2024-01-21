@@ -30,27 +30,23 @@ module.exports.loop = function () {
         Memory.keepMissions = true;
     }
     chrono("memoryManagement.clearAllMissions(): ");
-    if (Game.time % 1109 == 0) {
+    if (Game.time % 311 == 0) {
         Memory.missionCreated = false;
-        Memory.mission2Created = false;
     }
-    if (!Memory.missionCreated) {
+    if (!Memory.missionCreated && Game.getObjectById("5bbcaa279099fc012e630f31").energy == 0 && Game.getObjectById("5bbcaa279099fc012e630f30").energy == 0) {
         missionCenter._createMission("W53N7", [
             new SubMission(new RoomPosition(16, 11, "W53N7"), "moveTo"),
             new SubMission("657a52104a8d812d2c5d1f71", "withdraw", {resource: RESOURCE_ENERGY, room: "W53N8"}),
             new SubMission("657a52104a8d812d2c5d1f71", "withdraw", {resource: RESOURCE_GHODIUM_OXIDE, room: "W53N8"}),
             new SubMission("657a52104a8d812d2c5d1f71", "withdraw", {resource: RESOURCE_KEANIUM_OXIDE, room: "W53N8"}),
             new SubMission(new RoomPosition(9, 47, "W53N8"), "moveTo", {room: "W53N8"})
-        ], 7, "return creep.ticksToLive > 800 && creep.getActiveBodyparts(CARRY) > 2 && creep.store.getUsedCapacity() == 0");
-        Memory.missionCreated = true;
-    }
-    if (!Memory.mission2Created) {
+        ], 7, "return creep.ticksToLive > 400 && creep.ticksToLive < 800 && creep.getActiveBodyparts(CARRY) > 2 && creep.store.getUsedCapacity() == 0");
         missionCenter._createMission("W53N7", [
             new SubMission(new RoomPosition(5, 24, "W53N7"), "moveTo"),
             new SubMission("6584d6fbe2a2f9f1be57bfec", "withdraw", {resource: RESOURCE_ENERGY, room: "W54N7"}),
             new SubMission(new RoomPosition(47, 26, "W54N7"), "moveTo", {room: "W54N7"})
-        ], 7, "return creep.ticksToLive > 800 && creep.getActiveBodyparts(CARRY) > 2 && creep.store.getUsedCapacity() == 0");
-        Memory.mission2Created = true;
+        ], 7, "return creep.ticksToLive > 400 && creep.getActiveBodyparts(CARRY) > 2 && creep.store.getUsedCapacity() == 0");
+        Memory.missionCreated = true;
     }
     chrono("memoryManagement.clearAllMissions(): ");
     for (const link of _.filter(Game.structures, {structureType: STRUCTURE_LINK})) {
