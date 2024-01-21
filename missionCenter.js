@@ -21,7 +21,7 @@ const missionCenter = {
                 return;
             }
             if (roomName == "W51N4") {
-                if (!Game.rooms[roomName].missions.some(mission => mission.name == -1032444514) && Game.getObjectById("5bbcaa509099fc012e63124f").energy == 0 && Game.getObjectById("5bbcaa509099fc012e63124e").energy == 0) {
+                if (!Game.rooms[roomName].missions.some(mission => mission.name == -545252065) && Game.getObjectById("5bbcaa509099fc012e63124f").energy == 0 && Game.getObjectById("5bbcaa509099fc012e63124e").energy == 0) {
                     this._createMission(roomName, [
                         new SubMission(new RoomPosition(29, 48, "W51N4"), "moveTo"),
                         new SubMission("5bbcaa509099fc012e631251", "harvest", {room:"W51N3"}),
@@ -46,7 +46,7 @@ const missionCenter = {
                 [[[new SubMission(FIND_STRUCTURES, "upgradeController", {filterFunction: structure => (structure.structureType === STRUCTURE_CONTROLLER) && structure.my, resource: RESOURCE_ENERGY})], 0, 'return ["worker", "linkOp"].includes(creep.memory.type)'], null],
                 [[[new SubMission(FIND_HOSTILE_CREEPS, "attack")], 4, 'return creep.memory.type == "fighter"'], null],
                 [[[new SubMission(FIND_MY_CREEPS, "heal", {filterFunction: creep => creep.hitsMax - creep.hits > 0})], 4, 'return creep.structureType == STRUCTURE_TOWER'], null],
-                [[[new SubMission(FIND_RUINS, "withdraw", {filterFunction: ruin => ruin.store.getUsedCapacity()})], 3, 'return creep.memory.type == "worker"'], null],
+                [[[new SubMission(FIND_RUINS, "withdraw", {filterFunction: ruin => ruin.store.getUsedCapacity(RESOURCE_ENERGY) > 0, resource: RESOURCE_ENERGY})], 3, 'return creep.memory.type == "worker"'], null],
                 [[[new SubMission(FIND_TOMBSTONES, "withdraw", {filterFunction: tomb => tomb.store.getUsedCapacity() && (tomb.pos.findInRange(FIND_HOSTILE_CREEPS, 5).length == 0)})], 3, 'return creep.memory.type == "worker"'], null],
                 [[[new SubMission(FIND_DROPPED_RESOURCES, "pickup", {filterFunction: ress => ress.amount > 50})], 3, 'return ["worker", "linkOp"].includes(creep.memory.type)'], null],
                 [[[new SubMission(FIND_MY_STRUCTURES, "transfer", {filterFunction: struct => (struct.structureType === STRUCTURE_SPAWN) && (struct.store.getFreeCapacity(RESOURCE_ENERGY) > 0), resource: RESOURCE_ENERGY})], 3, 'return creep.memory.type == "worker"'], null],
