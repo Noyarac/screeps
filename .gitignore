@@ -2095,3 +2095,5 @@ package-lock.json
 package.json
 test.js
 cred.py
+__pycache__/
+__pycache__/cred.cpython-311.pyc
