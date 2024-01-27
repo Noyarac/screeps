@@ -5,12 +5,13 @@ const spawnAi = function() {
             const workersCount = this._countCreeps("worker");
             if (this._isAllowedToSpawn()) {
                 const CREEP_LIFETIME = 1500;
-                const BUFFER = 100 ;
+                const BUFFER = 100;
+                const PRICE_CAP = 1800
                 const spawnDelay = ~~((CREEP_LIFETIME - BUFFER) / (this._countCreeps() + 1));
                 this.memory.targetedMaxCreep = this.memory.targetedMaxCreep || this.estimateMaxCreep();
                 if (workersCount < this.memory.targetedMaxCreep) {
-                    let [workQuantity, carryQuantity, moveQuantity] = Array(3).fill(~~(this.room.energyAvailable / (BODYPART_COST[WORK] + BODYPART_COST[CARRY] + BODYPART_COST[MOVE])));
-                    let energyRemaining = this.room.energyAvailable % (BODYPART_COST[WORK] + BODYPART_COST[CARRY] + BODYPART_COST[MOVE]);
+                    let [workQuantity, carryQuantity, moveQuantity] = Array(3).fill(~~(Math.min(PRICE_CAP, this.room.energyAvailable) / (BODYPART_COST[WORK] + BODYPART_COST[CARRY] + BODYPART_COST[MOVE])));
+                    let energyRemaining = Math.min(PRICE_CAP, this.room.energyAvailable) % (BODYPART_COST[WORK] + BODYPART_COST[CARRY] + BODYPART_COST[MOVE]);
                     const extraMove = ~~(energyRemaining / 2 / BODYPART_COST[MOVE]);
                     moveQuantity += extraMove;
                     energyRemaining -= extraMove * BODYPART_COST[MOVE];

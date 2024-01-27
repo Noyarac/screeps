@@ -11,7 +11,7 @@ const creepAi = function() {
             if (!this.mission.hasSubMission) {
                 if (!this.memory.mission) {
                     if (this.store.getCapacity() && this.store.getUsedCapacity(RESOURCE_ENERGY) != this.store.getUsedCapacity()) {
-                        this.mission.subMission = [this.room.find(FIND_MY_STRUCTURES).filter(struct => struct.structureType == STRUCTURE_STORAGE)[0].id, "transfer", this.room.name];
+                        this.mission.subMission = [this.room.find(FIND_MY_STRUCTURES).filter(struct => [STRUCTURE_TERMINAL, STRUCTURE_STORAGE, STRUCTURE_CONTAINER].includes(struct.structureType)).sort((a,b) => (a.structureType < b.structureType) ? 1 : (a.structureType > b.structureType) ? -1 : 0)[0].id, "transfer", this.room.name];
                     } else {
                         this._getMission();
                     }
@@ -53,7 +53,7 @@ const creepAi = function() {
                     }
                 }
             }
-            if (actionString === "transfer" && target.structureType === STRUCTURE_STORAGE) {
+            if (actionString === "transfer" && [STRUCTURE_TERMINAL, STRUCTURE_STORAGE, STRUCTURE_CONTAINER].includes(target.structureType)) {
                 for (const resourceType of RESOURCES_ALL) {
                     if (this.store.getUsedCapacity(resourceType)) {
                         this.memory.subMission[3] = resourceType;
