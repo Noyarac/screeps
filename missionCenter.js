@@ -7,10 +7,11 @@ const missionCenter = {
         for (const hostileCreep of hostileCreeps) {
             const myDefenselessCreeps = hostileCreep.pos.findInRange(FIND_MY_CREEPS, 10).filter(myCreep => !myCreep.memory.scared && myCreep.getActiveBodyparts(ATTACK) == 0 && myCreep.getActiveBodyparts(RANGED_ATTACK) == 0);
             for (let myCreep of myDefenselessCreeps) {
-                debugger;
                 myCreep.say("😨");
                 myCreep.memory.scared = true;
-                myCreep.memory.mission.subMissionsList = [];
+                if (myCreep.memory.mission) {
+                    myCreep.memory.mission.subMissionsList = [];
+                }
                 myCreep.mission.subMission = [myCreep.memory.home, "moveTo", Game.getObjectById(myCreep.memory.home).pos.roomName, null];
             }
         }
@@ -39,7 +40,8 @@ const missionCenter = {
                 [[new SubMission(FIND_MY_STRUCTURES, "transfer", {filterFunction: struct => (struct.structureType === STRUCTURE_LINK) && (struct.memory.type === "sender") && (struct.store.getFreeCapacity(RESOURCE_ENERGY) > 50), resource: RESOURCE_ENERGY})], 1, 'return creep.memory.type == "linkOp"'],
                 [[new SubMission(FIND_STRUCTURES, "repair", {filterFunction: struct => [STRUCTURE_ROAD, STRUCTURE_CONTAINER].includes(struct.structureType) && (struct.hitsMax - struct.hits > 0), resource: RESOURCE_ENERGY})], 1, 'return creep.memory.type == "worker"'],
                 [[new SubMission(FIND_MY_STRUCTURES, "repair", {filterFunction: struct => struct.hitsMax - struct.hits > 0, resource: RESOURCE_ENERGY})], 1, 'return creep.memory.type == "worker"'],
-                [[new SubMission(FIND_MY_STRUCTURES, "transfer", {filterFunction: struct => struct.structureType == STRUCTURE_TERMINAL && struct.store.getUsedCapacity(RESOURCE_ENERGY) < 2500, resource: RESOURCE_ENERGY})], 1, 'return creep.memory.type == "worker"']
+                [[new SubMission(FIND_MY_STRUCTURES, "transfer", {filterFunction: struct => struct.structureType == STRUCTURE_TERMINAL && struct.store.getUsedCapacity(RESOURCE_ENERGY) < 2500, resource: RESOURCE_ENERGY})], 1, 'return creep.memory.type == "worker"'],
+                // [[new SubMission(FIND_MINERALS, "harvest", {filterFunction: mineral => mineral.pos.findInRange(FIND_MY_STRUCTURES, 1).length > 0, resource: RESOURCE_ZYNTHIUM})], 2, 'return creep.memory.type == "worker"']
             ]) {
                 this._createMission(roomName, ...mission);
             }

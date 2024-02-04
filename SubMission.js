@@ -11,7 +11,7 @@ class SubMission{
         this.room = (options.hasOwnProperty("room")) ? options.room : undefined;
         this.filterFunction = (options.hasOwnProperty("filterFunction")) ? options.filterFunction : undefined;
         switch (true) {
-            case [Source, Structure, Creep, ConstructionSite, Tombstone, Ruin, Resource].some(item => this.target instanceof item):
+            case [Source, Mineral, Structure, Creep, ConstructionSite, Tombstone, Ruin, Resource].some(item => this.target instanceof item):
                 this.type = "target";
                 this.room = this.target.pos.roomName;
                 break;

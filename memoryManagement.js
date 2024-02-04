@@ -2,6 +2,7 @@ const mem = {
     cleanFrequency: 53,
     initialize: function() {
         try{
+            Memory.market = Memory.market || new Array;
             for (const spawn of Object.values(Game.spawns)) {
                 spawn.memory.ttl = spawn.memory.ttl || 0;
             }

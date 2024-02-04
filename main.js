@@ -7,6 +7,7 @@ require("./towerAi")();
 require("./creepAi")();
 require("./spawnAi")();
 const missionCenter = require("./missionCenter");
+const marketAi = require("./marketAI");
 // TO CHANGE VERSION
 // Memory.keepMissions = false;
 // memoryManagement.clean(true);
@@ -59,6 +60,9 @@ module.exports.loop = function () {
     }
     chrono("missionCenter.updateList(): ");
     
+    marketAi.reactToTick();
+    chrono("marketAi: ");
+
     if (Game.cpu.bucket === 10000) {
         Game.cpu.generatePixel();
     }
