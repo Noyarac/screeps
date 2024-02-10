@@ -1,4 +1,4 @@
-const mem = {
+module.exports = {
     cleanFrequency: 53,
     initialize: function() {
         try{
@@ -57,4 +57,3 @@ const mem = {
         }
     }
 }
-module.exports = mem;

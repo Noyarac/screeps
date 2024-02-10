@@ -14,15 +14,17 @@ headers = {
 }
 
 
-def register_orders(orders1: list[list[str, int]], orders2: list[list[str, int]]):
+def register_orders(orders1, orders2):
     global headers
-    payload = {"expression": f"Memory.market.push({orders1});Memory.market.push({orders2})"}
-    response = requests.post('https://screeps.com/api/user/console?shard=shard3', headers=headers, json=payload)
+    payload = {"shard": "shard3", "expression": f"Memory.market.push({orders1});Memory.market.push({orders2})"}
+    print("DEBUG")
+    print(payload)
+    response = requests.post('https://screeps.com/api/user/console?shard=shard3', headers=headers, data=payload)
     if response.status_code == 200:
         headers = {
             'X-Token': response.headers._store["x-token"][1],
         }
-        return response
+        sleep((len(orders1) + 1) * 10 * 3)
     else:
         print(f"Failed to register orders to the game. Status code: {response.status_code}")
 
@@ -69,7 +71,9 @@ def get_orders(target_resource):
 def energy_real_cost_per_unit(order):
     return order["remainingAmount"] * order["price"] / (order["remainingAmount"] - calculate_energy_transaction_cost(order["remainingAmount"], "W53N7", order["roomName"]))
 
-def get_total_energy_price(quantity, prices, price_index = 0, total_price = 0, orders_to_deal: list[list[str, int]] = []):
+def get_total_energy_price(quantity, prices, price_index = 0, total_price = 0, orders_to_deal = None):
+    if orders_to_deal == None:
+        orders_to_deal = []
     ID = 0
     AMOUNT = 1
     UNIT_PRICE = 2
@@ -113,15 +117,10 @@ def find_free_money(price = None):
         if len(selling_orders) > 0 and len(buying_orders) > 0 and selling_orders[0][2] < buying_orders[0][2]:
             targeted_quantity = min(2500, selling_orders[0][1], buying_orders[0][1])
             energy_required_for_both = calculate_energy_transaction_cost(targeted_quantity, "W53N7", selling_orders[0][3]) + calculate_energy_transaction_cost(targeted_quantity, "W53N7", buying_orders[0][3])
-            deals_to_buy_energy = get_total_energy_price(energy_required_for_both, energy_orders)[1]
-            deals_to_buy_energy_console_command = reduce(lambda total, element: total + f"Game.market.deal({element[0]}, {element[1]}, 'W53N7'); ", deals_to_buy_energy, "")
-            print(target_resource, selling_orders[0], buying_orders[0])
-            print("FIRST")
-            print(deals_to_buy_energy_console_command + f"Game.market.deal('{selling_orders[0][0]}', {targeted_quantity}, 'W53N7')")
-            print("SECOND")
-            print(f"Game.market.deal('{buying_orders[0][0]}', {targeted_quantity}, 'W53N7')\n")
-            deals_to_make = deals_to_buy_energy.append([selling_orders[0][0], targeted_quantity])
-            register_orders(deals_to_make, [[buying_orders[0][0], targeted_quantity]])
+            deals_to_buy_energy: list[list[str|int]] = get_total_energy_price(energy_required_for_both, energy_orders)[1]
+            deals_to_buy_energy.append([selling_orders[0][0], targeted_quantity])
+            register_orders(deals_to_buy_energy, [[buying_orders[0][0], targeted_quantity]])
+            break
     print("Finished")
 
 def get_best_deals(target_resource, sell_or_buy, price = None):

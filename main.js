@@ -1,5 +1,4 @@
 require("./Room")();
-const SubMission = require("./SubMission");
 const memoryManagement = require("./memoryManagement");
 memoryManagement.initialize();
 require("./linkAi")();

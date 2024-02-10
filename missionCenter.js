@@ -1,7 +1,6 @@
-const Mission = require("./Mission");
 const SubMission = require("./SubMission");
 
-const missionCenter = {
+module.exports = {
     alertHostileCreep: function(roomName) {
         const hostileCreeps = Game.rooms[roomName].find(FIND_HOSTILE_CREEPS).filter(creep => creep.getActiveBodyparts(ATTACK) > 0) || (creep.getActiveBodyparts(RANGED_ATTACK) > 0);
         for (const hostileCreep of hostileCreeps) {
@@ -32,7 +31,7 @@ const missionCenter = {
                 [[new SubMission(FIND_MY_CREEPS, "heal", {filterFunction: creep => creep.hitsMax - creep.hits > 0})], 4, 'return creep.structureType == STRUCTURE_TOWER'],
                 [[new SubMission(FIND_RUINS, "withdraw", {filterFunction: ruin => ruin.store.getUsedCapacity(RESOURCE_ENERGY) > 0, resource: RESOURCE_ENERGY})], 3, 'return creep.memory.type == "worker"'],
                 [[new SubMission(FIND_TOMBSTONES, "withdraw", {filterFunction: tomb => tomb.store.getUsedCapacity() && (tomb.pos.findInRange(FIND_HOSTILE_CREEPS, 5).length == 0)})], 3, 'return creep.memory.type == "worker"'],
-                [[new SubMission(FIND_DROPPED_RESOURCES, "pickup", {filterFunction: ress => ress.amount > 50})], 3, 'return ["worker", "linkOp"].includes(creep.memory.type)'],
+                // [[new SubMission(FIND_DROPPED_RESOURCES, "pickup", {filterFunction: ress => ress.amount > 50})], 3, 'return ["worker", "linkOp"].includes(creep.memory.type)'],
                 [[new SubMission(FIND_MY_STRUCTURES, "transfer", {filterFunction: struct => (struct.structureType === STRUCTURE_SPAWN) && (struct.store.getFreeCapacity(RESOURCE_ENERGY) > 0), resource: RESOURCE_ENERGY})], 3, 'return creep.memory.type == "worker"'],
                 [[new SubMission(FIND_MY_STRUCTURES, "transfer", {filterFunction: struct => [STRUCTURE_EXTENSION, STRUCTURE_TOWER].includes(struct.structureType) && (struct.store.getFreeCapacity(RESOURCE_ENERGY) > 0), resource: RESOURCE_ENERGY})], 2, 'return creep.memory.type == "worker"'],
                 [[new SubMission(FIND_STRUCTURES, "transfer", {filterFunction: struct => (struct.structureType === STRUCTURE_CONTAINER) && struct.store.getFreeCapacity(RESOURCE_ENERGY), resource: RESOURCE_ENERGY})], 2, 'return creep.memory.type == "worker"'],
@@ -132,5 +131,3 @@ const missionCenter = {
         }
     }
 };
-
-module.exports = missionCenter;

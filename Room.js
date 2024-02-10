@@ -2,12 +2,11 @@ module.exports = function() {
     const p = Room.prototype;
     Object.defineProperty(p, "missions", {
         get: function() {
-            Memory.rooms[this.name] = Memory.rooms[this.name] || new Object;
-            Memory.rooms[this.name].missions = Memory.rooms[this.name].missions || new Array;
-            return Memory.rooms[this.name].missions;
+            this.memory.missions = this.memory.missions || new Array;
+            return this.memory.missions;
         },
         set: function(value) {
-            Memory.rooms[this.name].missions = value;
+            this.memory.missions = value;
         },
         configurable: true
     })

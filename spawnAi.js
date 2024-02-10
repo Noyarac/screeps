@@ -1,4 +1,4 @@
-const spawnAi = function() {
+module.exports = function() {
     let p = StructureSpawn.prototype;
     p.reactToTick = function() {
         try{
@@ -95,6 +95,4 @@ const spawnAi = function() {
         }
         return roomCreeps.length + ((this.spawning) ? 1 : 0);
     }
-};
-
-module.exports = spawnAi;
+}

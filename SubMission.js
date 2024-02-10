@@ -34,7 +34,7 @@ class SubMission{
         }
     }
     isStillRelevant() {
-        if (!["transfer", "build", "withdraw"].includes(this.actionString)) {
+        if (!["transfer", "build", "withdraw"].includes(this.actionString) || this.resource != RESOURCE_ENERGY) {
             return true;
         }
         const target = (this.type === "id") ? Game.getObjectById(this.target) : this.target;
@@ -66,4 +66,4 @@ Object.defineProperty(SubMission, "hash", {
         return this._hash;
     }
 });
-module.exports = SubMission;
+module.exports = SubMission
