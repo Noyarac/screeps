@@ -1,4 +1,4 @@
-const linkAi = function() {
+module.exports = function() {
     let p = StructureLink.prototype;
     Object.defineProperty(p, "memory", {
         get: function() {
@@ -29,4 +29,3 @@ const linkAi = function() {
     }
 
 }
-module.exports = linkAi;

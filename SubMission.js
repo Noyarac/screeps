@@ -11,16 +11,13 @@ class SubMission{
         this.room = (options.hasOwnProperty("room")) ? options.room : undefined;
         this.filterFunction = (options.hasOwnProperty("filterFunction")) ? options.filterFunction : undefined;
         switch (true) {
-            case [Source, Structure, Creep, ConstructionSite, Tombstone, Ruin, Resource].some(item => this.target instanceof item):
+            case [Source, Mineral, Structure, Creep, ConstructionSite, Tombstone, Ruin, Resource].some(item => this.target instanceof item):
                 this.type = "target";
+                this.room = this.target.pos.roomName;
                 break;
             case this.target instanceof Array:
                 this.target = new RoomPosition(...this.target)
-                this.type = "roomPosition";
-                this.room = this.target.roomName;
-                break;
             case this.target instanceof RoomPosition:
-                this.target = target;
                 this.type = "roomPosition";
                 this.room = this.target.roomName;
                 break;
@@ -29,11 +26,15 @@ class SubMission{
                 break;
             case typeof this.target === "string":
                 this.type = "id";
+                const triedObject = Game.getObjectById(this.target);
+                if (triedObject) {
+                    this.room = triedObject.pos.roomName;
+                }
                 break;
         }
     }
     isStillRelevant() {
-        if (!["transfer", "build", "withdraw"].includes(this.actionString)) {
+        if (!["transfer", "build", "withdraw"].includes(this.actionString) || this.resource != RESOURCE_ENERGY) {
             return true;
         }
         const target = (this.type === "id") ? Game.getObjectById(this.target) : this.target;
@@ -65,4 +66,4 @@ Object.defineProperty(SubMission, "hash", {
         return this._hash;
     }
 });
-module.exports = SubMission;
+module.exports = SubMission

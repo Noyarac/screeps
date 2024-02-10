@@ -1,4 +1,4 @@
-const towerAi = function() {
+module.exports = function() {
     const p = StructureTower.prototype;
     p.reactToTick = function() {
         try {
@@ -60,5 +60,4 @@ const towerAi = function() {
         },
         configurable: true
     })
-};
-module.exports = towerAi;
+}

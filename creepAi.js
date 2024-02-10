@@ -1,4 +1,4 @@
-const creepAi = function() {
+module.exports = function() {
     let p = Creep.prototype;
     p.reactToTick = function() {
         try{
@@ -11,8 +11,11 @@ const creepAi = function() {
             if (!this.mission.hasSubMission) {
                 if (!this.memory.mission) {
                     if (this.store.getCapacity() && this.store.getUsedCapacity(RESOURCE_ENERGY) != this.store.getUsedCapacity()) {
-                        this.mission.subMission = [this.room.find(FIND_MY_STRUCTURES).filter(struct => struct.structureType == STRUCTURE_STORAGE)[0].id, "transfer", this.room.name];
-                    } else {
+                        if (this.room.name == "W52N9") {
+                            this.mission.subMission = ["65b9857ac2f4e4619d0f0298", "transfer", this.room.name];
+                        } else {
+                            this.mission.subMission = [this.room.find(FIND_MY_STRUCTURES).filter(struct => [STRUCTURE_TERMINAL, STRUCTURE_STORAGE, STRUCTURE_CONTAINER].includes(struct.structureType)).sort((a,b) => (a.structureType < b.structureType) ? 1 : (a.structureType > b.structureType) ? -1 : 0)[0].id, "transfer", this.room.name];
+                        }                    } else {
                         this._getMission();
                     }
                 }
@@ -53,7 +56,7 @@ const creepAi = function() {
                     }
                 }
             }
-            if (actionString === "transfer" && target.structureType === STRUCTURE_STORAGE) {
+            if (actionString === "transfer" && [STRUCTURE_TERMINAL, STRUCTURE_STORAGE, STRUCTURE_CONTAINER, STRUCTURE_FACTORY].includes(target.structureType)) {
                 for (const resourceType of RESOURCES_ALL) {
                     if (this.store.getUsedCapacity(resourceType)) {
                         this.memory.subMission[3] = resourceType;
@@ -154,12 +157,13 @@ const creepAi = function() {
                     const targetClass = target.constructor;
                     const targetIsTombstone = targetClass === Tombstone;
                     const targetIsContainer = targetClass === StructureContainer;
+                    const targetIsFactory = targetClass === StructureFactory;
                     const creepStoreIsFull = this.thisCreep.store.getFreeCapacity() === 0;
                     if (
                         (this.thisCreep.store.getUsedCapacity(this.subMission[3]) == 0 && !(targetIsTombstone || targetIsContainer) && ['build', 'repair', 'transfer', 'upgradeController'].includes(actionString)) ||
                         (actionString === 'harvest' && (target.energy === 0 || creepStoreIsFull)) ||
-                        (actionString === 'transfer' && !targetIsContainer && (target.store.getFreeCapacity(this.subMission[3]) === 0 || this.thisCreep.store.getUsedCapacity(RESOURCE_ENERGY) == 0)) ||
-                        (actionString === 'transfer' && targetIsContainer && (target.store.getFreeCapacity() === 0 || this.thisCreep.store.getUsedCapacity() === 0)) ||
+                        (actionString === 'transfer' && !targetIsContainer && (target.store.getFreeCapacity(this.subMission[3]) === 0 || this.thisCreep.store.getUsedCapacity(this.subMission[3]) == 0)) ||
+                        (actionString === 'transfer' && (targetIsContainer || targetIsFactory) && (target.store.getFreeCapacity(this.subMission[3]) === 0 || this.thisCreep.store.getUsedCapacity(this.subMission[3]) === 0)) ||
                         (actionString === 'withdraw' && !targetIsTombstone && (target.store.getUsedCapacity(this.subMission[3]) === 0 || creepStoreIsFull)) ||
                         (actionString === 'withdraw' && targetIsTombstone && (target.store.getUsedCapacity() === 0 || creepStoreIsFull)) ||
                         (actionString === 'pickup' && (target.amount === 0 || creepStoreIsFull)) ||
@@ -192,5 +196,4 @@ const creepAi = function() {
             return this._mission;
         }
     })
-};
-module.exports = creepAi;
+}
