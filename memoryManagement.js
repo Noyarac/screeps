@@ -53,7 +53,7 @@ module.exports = {
                 }
             }    
         }catch(err){
-            console.log("memoryManagement clear " + err);
+            console.log("memoryManagement clean " + err);
         }
     }
 }
