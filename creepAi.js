@@ -1,44 +1,85 @@
 module.exports = function() {
     let p = Creep.prototype;
+    p.doMoverMission = function() {
+        const source = Game.getObjectById(this.room.sources[this.memory.sourceIndex][0]);
+        const container = Game.getObjectById(this.room.sources[this.memory.sourceIndex][1]);
+        const harvester = Game.getObjectById(this.room.sources[this.memory.sourceIndex][3]);
+        const storage = this.room.storage || Game.getObjectById(this.room.memory.temporaryStorage) || this.room.find(FIND_MY_SPAWNS)[0];
+        if (harvester && !harvester.pos.isEqualTo(container)) {
+            if (this.pos.isNearTo(harvester)) {
+                if (!this.pos.isNearTo(source)) {
+                    this.moveTo(container, {reusePath: 5});
+                    this.pull(harvester);
+                    harvester.move(this);
+                } else {
+                    this.moveTo(harvester);
+                    this.pull(harvester);
+                    harvester.move(this);
+                }
+            } else {
+                this.moveTo(harvester, {reusePath: 5});
+            }
+        } else if (this.store.getUsedCapacity()) {
+            if (this.transfer(storage, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+                this.moveTo(storage, {reusePath: 5})
+            }
+        } else {
+            if (this.withdraw(container, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+                this.moveTo(container, {reusePath: 5})
+            }            
+        }
+    }
+    p.doHarvesterMission = function() {
+        this.harvest(Game.getObjectById(this.memory.sourceId));
+    }
     p.reactToTick = function() {
         try{
             if (this.spawning) { 
                 return;
             }
-            if (this.mission.isSubMissionOver) {
-                this.mission.finishSubMission();
-            }
-            if (!this.mission.hasSubMission) {
-                if (!this.memory.mission) {
-                    if (this.store.getCapacity() && this.store.getUsedCapacity(RESOURCE_ENERGY) != this.store.getUsedCapacity()) {
-                        if (this.room.name == "W52N9") {
-                            this.mission.subMission = ["65b9857ac2f4e4619d0f0298", "transfer", this.room.name];
-                        } else {
-                            this.mission.subMission = [this.room.find(FIND_MY_STRUCTURES).filter(struct => [STRUCTURE_TERMINAL, STRUCTURE_STORAGE, STRUCTURE_CONTAINER].includes(struct.structureType)).sort((a,b) => (a.structureType < b.structureType) ? 1 : (a.structureType > b.structureType) ? -1 : 0)[0].id, "transfer", this.room.name];
-                        }                    } else {
-                        this._getMission();
+            switch(this.memory.type) {
+                case "harvester":
+                    this.doHarvesterMission();
+                    break;
+                case "mover":
+                    this.doMoverMission();
+                    break
+                default:
+                    if (this.mission.isSubMissionOver) {
+                        this.mission.finishSubMission();
                     }
-                }
-                if (this.memory.mission) {
-                    if (this.memory.mission.subMissionsList.length > 0) {
-                        if (['transfer', 'repair', 'build', 'upgradeController'].includes(this.memory.mission.subMissionsList[this.memory.mission.subMissionsList.length - 1][1]) && (this.store.getUsedCapacity(RESOURCE_ENERGY) === 0)) {
-                            let sourceSpot = this._findSourceSpot();
-                            if (sourceSpot) {
-                                this.memory.mission.subMissionsList.push([sourceSpot, (Game.getObjectById(sourceSpot) instanceof Source ) ? 'harvest' : "withdraw", this.room.name, RESOURCE_ENERGY]);
+                    if (!this.mission.hasSubMission) {
+                        if (!this.memory.mission) {
+                            if (this.store.getCapacity() && this.store.getUsedCapacity(RESOURCE_ENERGY) != this.store.getUsedCapacity()) {
+                                if (this.room.name == "W52N9") {
+                                    this.mission.subMission = ["65b9857ac2f4e4619d0f0298", "transfer", this.room.name];
+                                } else {
+                                    this.mission.subMission = [this.room.find(FIND_MY_STRUCTURES).filter(struct => [STRUCTURE_TERMINAL, STRUCTURE_STORAGE, STRUCTURE_CONTAINER].includes(struct.structureType)).sort((a,b) => (a.structureType < b.structureType) ? 1 : (a.structureType > b.structureType) ? -1 : 0)[0].id, "transfer", this.room.name];
+                                }                    } else {
+                                this._getMission();
                             }
                         }
-                        this.mission.subMission = this.memory.mission.subMissionsList.pop();
-                        if (this.mission.subMission[1] === 'attack' && this.getActiveBodyparts(ATTACK) === 0 && this.getActiveBodyparts(RANGED_ATTACK) > 0) {
-                            this.mission.subMission[1] = 'rangedAttack';
+                        if (this.memory.mission) {
+                            if (this.memory.mission.subMissionsList.length > 0) {
+                                if (['transfer', 'repair', 'build', 'upgradeController'].includes(this.memory.mission.subMissionsList[this.memory.mission.subMissionsList.length - 1][1]) && (this.store.getUsedCapacity(RESOURCE_ENERGY) === 0)) {
+                                    let sourceSpot = this._findSourceSpot();
+                                    if (sourceSpot) {
+                                        this.memory.mission.subMissionsList.push([sourceSpot, (Game.getObjectById(sourceSpot) instanceof Source ) ? 'harvest' : "withdraw", this.room.name, RESOURCE_ENERGY]);
+                                    }
+                                }
+                                this.mission.subMission = this.memory.mission.subMissionsList.pop();
+                                if (this.mission.subMission[1] === 'attack' && this.getActiveBodyparts(ATTACK) === 0 && this.getActiveBodyparts(RANGED_ATTACK) > 0) {
+                                    this.mission.subMission[1] = 'rangedAttack';
+                                }
+                            }
                         }
+                        //  else {
+                            // this.mission.subMission = [this.memory.home, "moveTo", undefined, undefined];
+                        // }
                     }
-                }
-                //  else {
-                    // this.mission.subMission = [this.memory.home, "moveTo", undefined, undefined];
-                // }
-            }
-            if (this.mission.hasSubMission) {
-                this._autoAction()
+                    if (this.mission.hasSubMission) {
+                        this._autoAction()
+                    }
             }
         } catch(err) {
             console.log("creepAi, reactToTick: ", err);
@@ -91,6 +132,7 @@ module.exports = function() {
     }
     p._findSourceSpot = function () {
         try{
+            debugger;
             let depart = this;
             for (i = this.memory.mission.subMissionsList.length -1; i >= 0 ; i--) {
                 if (['transfer', 'repair', 'build', 'upgradeController'].includes(this.memory.mission.subMissionsList[i][1])) {
@@ -101,22 +143,12 @@ module.exports = function() {
             if (depart == null) {
                 return null;
             }
-            const targets = ((depart != this) && [STRUCTURE_CONTROLLER, STRUCTURE_CONTAINER].includes(depart.structureType)) ?
-                [...depart.room.find(FIND_MY_STRUCTURES).filter(struct => (struct.structureType === STRUCTURE_LINK) && (struct.memory.type === "receiver") && (struct.store.getUsedCapacity(RESOURCE_ENERGY) > 49)), ...depart.room.find(FIND_SOURCES_ACTIVE)] :
-                [...depart.room.find(FIND_STRUCTURES).filter(struct => [STRUCTURE_CONTAINER, STRUCTURE_STORAGE].includes(struct.structureType) && (struct.store.getUsedCapacity(RESOURCE_ENERGY) > 49)), ...depart.room.find(FIND_SOURCES_ACTIVE)];
+            let targets = [...depart.room.find(FIND_MY_STRUCTURES).filter(struct => (struct.structureType === STRUCTURE_LINK) && (struct.memory.type === "receiver") && (struct.store.getUsedCapacity(RESOURCE_ENERGY) > 49)), ...depart.room.find(FIND_STRUCTURES).filter(struct => [STRUCTURE_CONTAINER, STRUCTURE_STORAGE].includes(struct.structureType) && (struct.store.getUsedCapacity(RESOURCE_ENERGY) > 49))];
+            if (targets.length == 0) {
+                targets = depart.room.find(FIND_SOURCES_ACTIVE);
+            }
             const creepId = this.id;
-            const closest = depart.pos.findClosestByPath(targets, {filter: source => {
-                if (source.pos.findInRange(FIND_HOSTILE_CREEPS, 4).length > 0) {return false;}
-                const AROUND = [-1, 0, 1];
-                for (let x of AROUND) {
-                    for (let y of AROUND) {
-                        if (source.room.lookAt(source.pos.x + x, source.pos.y + y).reduce((walkable, obstactle) => {return walkable && !((OBSTACLE_OBJECT_TYPES.includes(obstactle.type) && !((obstactle.type === "creep")?obstactle.creep.id === creepId:false)) || (obstactle.terrain === "wall"))}, true)) {
-                            return true
-                        }
-                    }
-                }
-                return false;
-            }});
+            const closest = depart.pos.findClosestByPath(targets, {filter: source => source.pos.findInRange(FIND_HOSTILE_CREEPS, 4).length == 0});
             return (closest != null) ? closest.id : null 
         }catch(err){
             console.log("find source spot", err)

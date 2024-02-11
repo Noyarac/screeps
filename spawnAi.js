@@ -3,12 +3,49 @@ module.exports = function() {
     p.reactToTick = function() {
         try{
             const workersCount = this._countCreeps("worker");
+            if (this.spawning) {
+                const creep = Game.creeps[this.spawning.name];
+                if (creep.memory.type == "mover") {
+                    this.room.sources[creep.memory.sourceIndex][2] = creep.id;
+                } else if (creep.memory.type == "harvester") {
+                    this.room.sources[creep.memory.sourceIndex][3] = creep.id;
+                }
+            }
             if (this._isAllowedToSpawn()) {
                 const CREEP_LIFETIME = 1500;
                 const BUFFER = 100;
                 const PRICE_CAP = 1800
                 const spawnDelay = ~~((CREEP_LIFETIME - BUFFER) / (this._countCreeps() + 1));
                 this.memory.targetedMaxCreep = this.memory.targetedMaxCreep || this.estimateMaxCreep();
+                const creepName = this.room.name + Game.time.toString();
+                for (let [index, [sourceId, containerId, moverId, harvesterId]] of this.room.sources.entries()) {
+                    const storage = this.room.storage || Game.getObjectById(this.room.memory.temporaryStorage)
+                    if (storage && !moverId && containerId) {
+                        const partQty = Math.ceil(Math.min(25, storage.pos.findPathTo(Game.getObjectById(containerId)).length * 2 / 5));
+                        const status = this.spawnCreep([
+                            ...new Array(partQty).fill(CARRY), 
+                            ...new Array(partQty).fill(MOVE)
+                        ], creepName, {memory: {type: "mover", home: this.id, sourceIndex: index}});
+                        if (status === OK ) {
+                            this.memory.ttl = Game.time + spawnDelay;
+                            break;
+                        } else {
+                            console.log(`Error spawning mover creep: ${status}`)
+                        }
+                    }
+                    if (storage && !harvesterId && containerId && moverId) {
+                        const status = this.spawnCreep([
+                            ...new Array(5).fill(WORK) 
+                        ], creepName, {memory: {type: "harvester", home: this.id, sourceId: sourceId, sourceIndex: index}});
+                        if (status === OK ) {
+                            this.memory.ttl = Game.time + spawnDelay;
+                            break;
+                        } else {
+                            console.log(`Error spawning harvester creep: ${status}`)
+                        }
+                    }
+                }
+        
                 if (workersCount < this.memory.targetedMaxCreep) {
                     let [workQuantity, carryQuantity, moveQuantity] = Array(3).fill(~~(Math.min(PRICE_CAP, this.room.energyAvailable) / (BODYPART_COST[WORK] + BODYPART_COST[CARRY] + BODYPART_COST[MOVE])));
                     let energyRemaining = Math.min(PRICE_CAP, this.room.energyAvailable) % (BODYPART_COST[WORK] + BODYPART_COST[CARRY] + BODYPART_COST[MOVE]);
@@ -20,7 +57,7 @@ module.exports = function() {
                         ...new Array(workQuantity).fill(WORK), 
                         ...new Array(carryQuantity).fill(CARRY), 
                         ...new Array(moveQuantity).fill(MOVE)
-                    ], this.room.name + Game.time.toString(), {memory: {type: "worker", home: this.id}});
+                    ], creepName, {memory: {type: "worker", home: this.id}});
                     if (status === OK ) {
                         this.memory.ttl = Game.time + spawnDelay;
                     } else {
@@ -31,7 +68,7 @@ module.exports = function() {
                 //     const status = this.spawnCreep([
                 //         ...new Array(8).fill(CARRY), 
                 //         ...new Array(8).fill(MOVE)
-                //     ], this.room.name + Game.time.toString(), {memory: {type: "stealer", home: this.id}});
+                //     ], creepName, {memory: {type: "stealer", home: this.id}});
                 //     if (status === OK ) {
                 //         this.memory.ttl = Game.time + spawnDelay;
                 //     } else {
@@ -45,7 +82,7 @@ module.exports = function() {
                         ...new Array(3).fill(WORK), 
                         ...new Array(1).fill(CARRY), 
                         ...new Array(2).fill(MOVE)
-                    ], this.room.name + Game.time.toString(), {memory: {type: "linkOp", home: this.id}});
+                    ], creepName, {memory: {type: "linkOp", home: this.id}});
                     if (status === OK ) {
                         this.memory.ttl = Game.time + spawnDelay;
                     } else {
@@ -57,7 +94,7 @@ module.exports = function() {
                             ...new Array(8).fill(TOUGH),
                             ...new Array(8).fill(MOVE),
                             ...new Array(4).fill(ATTACK) 
-                        ], this.room.name + Game.time.toString(), {memory: {type: "fighter", home: this.id}});
+                        ], creepName, {memory: {type: "fighter", home: this.id}});
                     if (status === OK ) {
                         this.memory.ttl = Game.time + spawnDelay;
                     } else {

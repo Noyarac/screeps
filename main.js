@@ -54,6 +54,7 @@ module.exports.loop = function () {
     chrono("spawn.reactToTick(): ");
     
     for (const roomName in Game.rooms) {
+        Game.rooms[roomName].manageHarvesting()
         missionCenter.updateList(roomName);
         missionCenter.alertHostileCreep(roomName);
     }
