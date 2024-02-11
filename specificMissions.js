@@ -22,6 +22,17 @@ module.exports = [
         ]
     },
     {
+        room: "W51N9",
+        condition: () => Game.getObjectById("65aa7a07c329e8d99be5f0cb").store.getUsedCapacity("KO"),
+        creepSelection: "return [WORK, MOVE, CARRY].every(bodypartType => creep.getActiveBodyparts(bodypartType)) && creep.store.getUsedCapacity() == 0 && creep.ticksToLive > 100",
+        priority: 3,
+        listOfSubMissions: [
+            new SubMission(new RoomPosition(2, 19, "W51N9"), "moveTo"),
+            new SubMission("65c46ae9b9ef42aaff711d30", "transfer", {resource:"KO"}),
+            new SubMission("65aa7a07c329e8d99be5f0cb", "withdraw", {resource:"KO"})
+        ]
+    },
+    {
         room: "W53N7",
         condition: () => ["5bbcaa279099fc012e630f30", "5bbcaa279099fc012e630f31"].every((id) => Game.getObjectById(id).energy == 0),
         creepSelection: "return [WORK, MOVE, CARRY].every(bodypartType => creep.getActiveBodyparts(bodypartType)) && creep.store.getUsedCapacity() == 0 && creep.ticksToLive > 100",
@@ -34,12 +45,22 @@ module.exports = [
     },
     {
         room: "W51N4",
-        condition: () => Game.getObjectById("659d5b98f748b5ca4c990fad").store.getUsedCapacity(RESOURCE_ZYNTHIUM) > 0,
+        condition: () => Game.getObjectById("65bfdae6a399e33ffa58b46c").store.getUsedCapacity(RESOURCE_WIRE) > 0,
         creepSelection: "return [WORK, MOVE, CARRY].every(bodypartType => creep.getActiveBodyparts(bodypartType)) && creep.store.getUsedCapacity() == 0 && creep.ticksToLive > 100",
         priority: 2,
         listOfSubMissions: [
-            new SubMission("65bfdae6a399e33ffa58b46c", "transfer", {resource: RESOURCE_ZYNTHIUM}),
-            new SubMission("659d5b98f748b5ca4c990fad", "withdraw", {resource: RESOURCE_ZYNTHIUM}),
+            new SubMission("65c46624a73b270a9e784bab", "transfer", {resource: RESOURCE_WIRE}),
+            new SubMission("65bfdae6a399e33ffa58b46c", "withdraw", {resource: RESOURCE_WIRE}),
+        ]
+    },
+    {
+        room: "W53N7",
+        condition: () => Game.getObjectById("659187f846d80fa3601ae462").store.getUsedCapacity("GO") > 0,
+        creepSelection: "return [WORK, MOVE, CARRY].every(bodypartType => creep.getActiveBodyparts(bodypartType)) && creep.store.getUsedCapacity() == 0 && creep.ticksToLive > 100",
+        priority: 3,
+        listOfSubMissions: [
+            new SubMission("65acec1790ea90c8dc01cb9f", "transfer", {resource: "GO"}),
+            new SubMission("659187f846d80fa3601ae462", "withdraw", {resource: "GO"}),
         ]
     },
     {
@@ -64,12 +85,12 @@ module.exports = [
     },
     {
         room: "W51N4",
-        condition: () => Game.getObjectById("65c46624a73b270a9e784bab").store.getUsedCapacity(RESOURCE_SILICON) > 0,
+        condition: () => Game.getObjectById("659d5b98f748b5ca4c990fad").store.getUsedCapacity("UH") > 0,
         creepSelection: "return [WORK, MOVE, CARRY].every(bodypartType => creep.getActiveBodyparts(bodypartType)) && creep.store.getUsedCapacity() == 0 && creep.ticksToLive > 300",
         priority: 2,
         listOfSubMissions: [
-            new SubMission("65bfdae6a399e33ffa58b46c", "transfer", {resource:RESOURCE_SILICON}),
-            new SubMission("65c46624a73b270a9e784bab", "withdraw", {resource:RESOURCE_SILICON})
+            new SubMission("65c46624a73b270a9e784bab", "transfer", {resource:"UH"}),
+            new SubMission("659d5b98f748b5ca4c990fad", "withdraw", {resource:"UH"})
         ]
     }
     // {

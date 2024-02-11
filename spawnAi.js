@@ -13,8 +13,8 @@ module.exports = function() {
             }
             if (this._isAllowedToSpawn()) {
                 const CREEP_LIFETIME = 1500;
-                const BUFFER = 100;
-                const PRICE_CAP = 1800
+                const BUFFER = 400;
+                const PRICE_CAP = 2800
                 const spawnDelay = ~~((CREEP_LIFETIME - BUFFER) / (this._countCreeps() + 1));
                 this.memory.targetedMaxCreep = this.memory.targetedMaxCreep || this.estimateMaxCreep();
                 const creepName = this.room.name + Game.time.toString();
@@ -24,7 +24,7 @@ module.exports = function() {
                         const partQty = Math.ceil(Math.min(25, storage.pos.findPathTo(Game.getObjectById(containerId)).length * 2 / 5));
                         const status = this.spawnCreep([
                             ...new Array(partQty).fill(CARRY), 
-                            ...new Array(partQty).fill(MOVE)
+                            ...new Array(Math.ceil(partQty/2)).fill(MOVE)
                         ], creepName, {memory: {type: "mover", home: this.id, sourceIndex: index}});
                         if (status === OK ) {
                             this.memory.ttl = Game.time + spawnDelay;
@@ -76,19 +76,19 @@ module.exports = function() {
                 //     }
 
                 // }
-                const targetedLinkOpQuantity = this.room.find(FIND_MY_STRUCTURES).filter(struct => struct.structureType === STRUCTURE_LINK && struct.memory.type === "sender").length;
-                if (this._countCreeps("linkOp") < targetedLinkOpQuantity && this.room.energyAvailable >= (BODYPART_COST[WORK] * 3 + BODYPART_COST[CARRY] * 1 + BODYPART_COST[MOVE] * 2)) {
-                    let status = this.spawnCreep([
-                        ...new Array(3).fill(WORK), 
-                        ...new Array(1).fill(CARRY), 
-                        ...new Array(2).fill(MOVE)
-                    ], creepName, {memory: {type: "linkOp", home: this.id}});
-                    if (status === OK ) {
-                        this.memory.ttl = Game.time + spawnDelay;
-                    } else {
-                        console.log(`Error spawning linkOp creep: ${status}`)
-                    }
-                }
+                // const targetedLinkOpQuantity = this.room.find(FIND_MY_STRUCTURES).filter(struct => struct.structureType === STRUCTURE_LINK && struct.memory.type === "sender").length;
+                // if (this._countCreeps("linkOp") < targetedLinkOpQuantity && this.room.energyAvailable >= (BODYPART_COST[WORK] * 3 + BODYPART_COST[CARRY] * 1 + BODYPART_COST[MOVE] * 2)) {
+                //     let status = this.spawnCreep([
+                //         ...new Array(3).fill(WORK), 
+                //         ...new Array(1).fill(CARRY), 
+                //         ...new Array(2).fill(MOVE)
+                //     ], creepName, {memory: {type: "linkOp", home: this.id}});
+                //     if (status === OK ) {
+                //         this.memory.ttl = Game.time + spawnDelay;
+                //     } else {
+                //         console.log(`Error spawning linkOp creep: ${status}`)
+                //     }
+                // }
                 if (this._countCreeps("fighter") < 1  && this.room.energyAvailable >= (BODYPART_COST[TOUGH] * 8 + BODYPART_COST[MOVE] * 8 + BODYPART_COST[ATTACK] * 4)) {
                     let status = this.spawnCreep([
                             ...new Array(8).fill(TOUGH),
@@ -107,11 +107,9 @@ module.exports = function() {
         }
     }
     p._isAllowedToSpawn = function() {
-        return [
-            Game.time > this.memory.ttl && this.room.energyAvailable >= SPAWN_ENERGY_START,
-            this._countCreeps("worker") == 0 && this.room.energyAvailable >= SPAWN_ENERGY_START,
-            this.room.energyAvailable == this.room.energyCapacityAvailable
-        ].some(x => x)
+        return (Game.time > this.memory.ttl && this.room.energyAvailable >= SPAWN_ENERGY_START) ||
+            (this._countCreeps("worker") == 0 && this.room.energyAvailable >= SPAWN_ENERGY_START) ||
+            (this.room.energyAvailable == this.room.energyCapacityAvailable)
     }
     p.estimateMaxCreep = function () {
         return Math.ceil(this.room.find(FIND_SOURCES_ACTIVE).reduce((results, source) => {
