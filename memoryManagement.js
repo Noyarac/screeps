@@ -2,7 +2,7 @@ module.exports = {
     cleanFrequency: 53,
     initialize: function() {
         try{
-            Memory.market = Memory.market || new Array;
+            Memory.market = Memory.market || {b_w: false, s_w: false};
             for (const spawn of Object.values(Game.spawns)) {
                 spawn.memory.ttl = spawn.memory.ttl || 0;
             }

@@ -1,16 +1,6 @@
 const SubMission = require("./SubMission");
 module.exports = [
     {
-        room: "W53N7",
-        condition: () => Game.getObjectById("65acec1790ea90c8dc01cb9f").store.getUsedCapacity(RESOURCE_ENERGY) > 12000,
-        creepSelection: "return [WORK, MOVE, CARRY].every(bodypartType => creep.getActiveBodyparts(bodypartType)) && creep.store.getUsedCapacity() == 0 && creep.ticksToLive > 100",
-        priority: 3,
-        listOfSubMissions: [
-            new SubMission("659187f846d80fa3601ae462", "transfer", {resource: RESOURCE_ENERGY}),
-            new SubMission("65acec1790ea90c8dc01cb9f", "withdraw", {resource: RESOURCE_ENERGY})
-        ]
-    },
-    {
         room: "W52N9",
         condition: () => ["5bbcaa3b9099fc012e6310b1", "5bbcaa3b9099fc012e6310b0"].every((id) => Game.getObjectById(id).energy == 0),
         creepSelection: "return [WORK, MOVE, CARRY].every(bodypartType => creep.getActiveBodyparts(bodypartType)) && creep.store.getUsedCapacity() == 0 && creep.ticksToLive > 100",
@@ -93,13 +83,4 @@ module.exports = [
             new SubMission("659d5b98f748b5ca4c990fad", "withdraw", {resource:"UH"})
         ]
     }
-    // {
-    //     room: "W51N4",
-    //     condition: () => Game.getObjectById("65bedf50a6fd9a17f4d0b6d4").cooldown == 0,
-    //     creepSelection: "return [WORK, MOVE, CARRY].every(bodypartType => creep.getActiveBodyparts(bodypartType)) && creep.store.getUsedCapacity() == 0 && creep.ticksToLive > 300",
-    //     priority: 1,
-    //     listOfSubMissions: [
-    //         new SubMission("5bbcb13d40062e4259e92cc9", "harvest")
-    //     ]
-    // }
 ]

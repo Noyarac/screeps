@@ -51,11 +51,8 @@ module.exports = function() {
                     if (!this.mission.hasSubMission) {
                         if (!this.memory.mission) {
                             if (this.store.getCapacity() && this.store.getUsedCapacity(RESOURCE_ENERGY) != this.store.getUsedCapacity()) {
-                                if (this.room.name == "W52N9") {
-                                    this.mission.subMission = ["65b9857ac2f4e4619d0f0298", "transfer", this.room.name];
-                                } else {
-                                    this.mission.subMission = [this.room.find(FIND_MY_STRUCTURES).filter(struct => [STRUCTURE_TERMINAL, STRUCTURE_STORAGE, STRUCTURE_CONTAINER].includes(struct.structureType)).sort((a,b) => (a.structureType < b.structureType) ? 1 : (a.structureType > b.structureType) ? -1 : 0)[0].id, "transfer", this.room.name];
-                                }                    } else {
+                                this.mission.subMission = [this.room.find(FIND_MY_STRUCTURES).filter(struct => [STRUCTURE_TERMINAL, STRUCTURE_STORAGE, STRUCTURE_CONTAINER].includes(struct.structureType)).sort((a,b) => (a.structureType < b.structureType) ? 1 : (a.structureType > b.structureType) ? -1 : 0)[0].id, "transfer", this.room.name];
+                            } else {
                                 this._getMission();
                             }
                         }

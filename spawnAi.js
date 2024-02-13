@@ -11,6 +11,15 @@ module.exports = function() {
                     this.room.sources[creep.memory.sourceIndex][3] = creep.id;
                 }
             }
+            if (Game.time % 3001 == 0) {
+                if (this.room.storage) {
+                    if (this.room.storage.store.getUsedCapacity(RESOURCE_ENERGY) < 2000) {
+                        this.memory.targetedMaxCreep = Math.max(this.memory.targetedMaxCreep - 1, 1);
+                    } else if (this.room.storage.store.getUsedCapacity(RESOURCE_ENERGY) > 10000) {
+                        this.memory.targetedMaxCreep = Math.min(this.memory.targetedMaxCreep + 1, 6);
+                    }
+                }
+            }
             if (this._isAllowedToSpawn()) {
                 const CREEP_LIFETIME = 1500;
                 const BUFFER = 400;
